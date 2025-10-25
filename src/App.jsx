@@ -120,9 +120,6 @@ const ACTIVE = useMemo(
   [enabledCriteriaKeys]
 );
 
-
-);
-
 // Keep other existing UI state if you need tabs/modals
 const [activeTab, setActiveTab] = useState('data');
 const [addOpen, setAddOpen] = useState(false);
