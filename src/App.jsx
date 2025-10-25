@@ -112,54 +112,131 @@ const ALL_CRITERIA = [
 ];
 
 // Which criteria are currently enabled (none by default)
-const [enabledCriteriaKeys, setEnabledCriteriaKeys] = useState([]);
-
-// Computed active criteria list used everywhere else
+const [enabledCriteriaKeys, setEnabledCriteriaKeys] = useState<string[]>([]);
 const ACTIVE = useMemo(
   () => ALL_CRITERIA.filter(c => enabledCriteriaKeys.includes(c.key)),
   [enabledCriteriaKeys]
+);
+
 );
 
 // Keep other existing UI state if you need tabs/modals
 const [activeTab, setActiveTab] = useState('data');
 const [addOpen, setAddOpen] = useState(false);
 
+// ---- Cloud user + record ----
+const [user, setUser] = useState(null);
+const [recordId, setRecordId] = useState(null);
+const [saving, setSaving] = useState("idle"); // 'idle' | 'saving' | 'saved'
 
-  // Load saved
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed.schools)) setSchools(parsed.schools);
-        if (parsed.weights && typeof parsed.weights === 'object') setWeights(parsed.weights);
-        if (Array.isArray(parsed.criteria)) setCriteria(parsed.criteria);
+// Fallback local storage key for guests
+const STORAGE_KEY = "dental-ranking-data-v1";
+
+// On mount: get user → ensure record → load cloud data (or local if guest)
+useEffect(() => {
+  let mounted = true;
+  (async () => {
+    const u = await getUser();
+    if (!mounted) return;
+    setUser(u);
+
+    if (u) {
+      // signed in → ensure one record and load it
+      const id = await ensureUserRanking(u.id);
+      if (!mounted) return;
+      setRecordId(id);
+
+      const cloud = await loadData(id);
+      if (!mounted) return;
+      if (cloud) {
+        if (Array.isArray(cloud.schools)) setSchools(cloud.schools);
+        if (cloud.weights && typeof cloud.weights === "object") setWeights(cloud.weights);
+        if (Array.isArray(cloud.enabledCriteriaKeys)) setEnabledCriteriaKeys(cloud.enabledCriteriaKeys);
+        if (typeof cloud.rainbowMode === "boolean") setRainbowMode(cloud.rainbowMode);
       }
-    } catch (e) { console.warn('Failed to load saved data', e); }
-  }, []);
-  // Autosave
-  useEffect(() => {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ v: STORAGE_VER, schools, weights, criteria })); }
-    catch (e) { console.warn('Failed to save', e); }
-  }, [schools, weights, criteria]);
-
-  const totalWeight = useMemo(() => criteria.reduce((sum, c) => sum + Number(weights[c.key] || 0), 0), [weights, criteria]);
-  const rowsWithScores = useMemo(() => {
-    const norm = {};
-    criteria.forEach((c) => { norm[c.key] = normalizeCriterion(schools, c.key, c.higherIsBetter); });
-    return schools
-      .map((s, idx) => {
-        let composite = 0;
-        for (const c of criteria) {
-          const w = Number(weights[c.key] || 0);
-          const sc = norm[c.key][idx] ?? 50;
-          composite += (w / (totalWeight || 1)) * sc;
+    } else {
+      // guest → try local storage
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed.schools)) setSchools(parsed.schools);
+          if (parsed.weights && typeof parsed.weights === "object") setWeights(parsed.weights);
+          if (Array.isArray(parsed.enabledCriteriaKeys)) setEnabledCriteriaKeys(parsed.enabledCriteriaKeys);
+          if (typeof parsed.rainbowMode === "boolean") setRainbowMode(parsed.rainbowMode);
         }
-        return { ...s, composite: Number(composite.toFixed(2)) };
-      })
-      .sort((a, b) => (b.composite ?? 0) - (a.composite ?? 0))
-      .map((r, i) => ({ ...r, rank: i + 1 }));
-  }, [schools, weights, totalWeight, criteria]);
+      } catch (e) {
+        console.warn("Local load failed", e);
+      }
+    }
+  })();
+  return () => { mounted = false; };
+}, []);
+
+// Autosave whenever the data changes
+useEffect(() => {
+  const payload = { schools, weights, enabledCriteriaKeys, rainbowMode };
+
+  // always keep a guest copy
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); } catch {}
+
+  if (!user || !recordId) return;
+
+  setSaving("saving");
+  const t = setTimeout(async () => {
+    try {
+      await saveData(recordId, payload);
+      setSaving("saved");
+      setTimeout(() => setSaving("idle"), 1200);
+    } catch (e) {
+      console.error(e);
+      setSaving("idle");
+    }
+  }, 600); // debounce writes
+  return () => clearTimeout(t);
+}, [user, recordId, schools, weights, enabledCriteriaKeys, rainbowMode]);
+
+  
+ // Total weight for currently enabled criteria
+const totalWeight = useMemo(
+  () => ACTIVE.reduce((sum, c) => sum + Number(weights[c.key] || 0), 0),
+  [weights, ACTIVE]
+);
+
+// Recompute rows with scores based on ACTIVE criteria only
+const rowsWithScores = useMemo(() => {
+  // No schools yet → nothing to rank
+  if (!schools.length) return [];
+
+  // No criteria selected yet → neutral composite (0) and stable order
+  if (!ACTIVE.length) {
+    return schools.map((s, i) => ({ ...s, composite: 0, rank: i + 1 }));
+  }
+
+  // Precompute normalized arrays per active criterion
+  const norm = {};
+  ACTIVE.forEach((c) => {
+    norm[c.key] = normalizeCriterion(schools, c.key, c.higherIsBetter);
+  });
+
+  const denom = totalWeight || 1;
+
+  // Compute weighted composite per school
+  const rows = schools.map((s, idx) => {
+    let composite = 0;
+    for (const c of ACTIVE) {
+      const w = Number(weights[c.key] || 0);
+      const sc = norm[c.key][idx] ?? 50;
+      composite += (w / denom) * sc;
+    }
+    return { ...s, composite: Number(composite.toFixed(2)) };
+  });
+
+  // Rank high → low
+  rows.sort((a, b) => (b.composite ?? 0) - (a.composite ?? 0));
+  return rows.map((r, i) => ({ ...r, rank: i + 1 }));
+}, [schools, weights, ACTIVE, totalWeight]);
+
 
   function removeCriterion(key){
     setCriteria((prev)=> prev.filter((c)=> c.key !== key));
