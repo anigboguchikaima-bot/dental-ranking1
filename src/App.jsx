@@ -310,11 +310,19 @@ function removeEnabledCriterion(key) {
       {/* Header */}
       <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight flex items-center gap-2">
-            <span className="bg-clip-text text-transparent bg-[conic-gradient(from_0deg_at_50%_50%,#ef4444,#f59e0b,#84cc16,#06b6d4,#8b5cf6,#ef4444)]">Dental Schools Multi-Criteria Ranking</span>
-            <Sparkles className="w-6 h-6 text-fuchsia-500" />
-          </h1>
-          <p className="text-slate-600 mt-1">Edit values, tweak weights, and compare schools. We autosave your changes in this browser.</p>
+          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight flex items-center gap-2">
+  <span className="bg-clip-text text-transparent bg-[conic-gradient(from_0deg_at_50%_50%,#ef4444,#f59e0b,#84cc16,#06b6d4,#8b5cf6,#ef4444)]">
+    EduAlign
+  </span>
+  <Sparkles className="w-6 h-6 md:w-7 md:h-7 text-fuchsia-500" />
+</h1>
+
+<p className="mt-1 text-sm md:text-base text-white/90 drop-shadow-[0_1px_1px_rgb(0_0_0_/_0.25)]">
+  <span className="bg-clip-text text-transparent bg-[linear-gradient(90deg,#f43f5e,#f59e0b,#22c55e,#06b6d4,#8b5cf6)]">
+    Where Data Meets Destiny
+  </span>
+</p>
+
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <label className="flex items-center gap-2 px-3 py-2 rounded-2xl border bg-white/70 cursor-pointer select-none">
