@@ -252,6 +252,23 @@ const rowsWithScores = useMemo(() => {
   const allSelected = rowsWithScores.length > 0 && rowsWithScores.every(r => selectedIds.has(r.id));
 
   const chartData = rowsWithScores.map((r) => ({ name: `#${r.rank} ${shorten(r.name, 24)}`, score: r.composite }));
+function toggleCriterionKey(key) {
+  setEnabledCriteriaKeys((prev) =>
+    prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+  );
+  // Give default weight if criterion was just enabled
+  setWeights((w) => (w[key] == null ? { ...w, [key]: 10 } : w));
+}
+
+function removeEnabledCriterion(key) {
+  // Disable the criterion
+  setEnabledCriteriaKeys((prev) => prev.filter((k) => k !== key));
+  // Clean up its weight
+  setWeights((w) => {
+    const { [key]: _drop, ...rest } = w;
+    return rest;
+  });
+}
 
   function updateField(sid, key, value) { setSchools((prev) => prev.map((s) => (s.id === sid ? { ...s, [key]: value } : s))); }
   function addSchool() { setSchools((prev) => [...prev, { id: id(), name: "New School", city: "", state: "", deadline: "" }]); }
@@ -318,6 +335,37 @@ const rowsWithScores = useMemo(() => {
           <button onClick={restoreDefaultCriteria} className="rounded-2xl px-3 py-2 border bg-white hover:bg-sky-50">Restore Default Criteria</button>
         </div>
       </header>
+{/* ===== Blank Canvas Banner ===== */}
+{schools.length === 0 && criteria.length === 0 && (
+  <div className="my-6 rounded-2xl border-2 border-dashed border-white/60 bg-white/70 backdrop-blur p-6 text-center space-y-3">
+    <h2 className="text-xl font-semibold">Start Your Comparison</h2>
+    <p className="text-slate-600">
+      Add at least one school and one criterion to begin. You can customize everything.
+    </p>
+    <div className="flex items-center justify-center gap-2 flex-wrap">
+      <button
+        onClick={addSchool}
+        className="rounded-xl px-3 py-2 bg-[linear-gradient(90deg,#ff80b5,#9089fc)] text-white hover:opacity-90"
+      >
+        + Add School
+      </button>
+      <button
+        onClick={() => setAddOpen(true)}
+        className="rounded-xl px-3 py-2 border bg-white hover:bg-slate-50"
+      >
+        + Add Criterion
+      </button>
+      <button
+        onClick={restoreDefaultCriteria}
+        className="rounded-xl px-3 py-2 border bg-white hover:bg-slate-50"
+        title="Loads a sensible starter set of criteria with zero weights."
+      >
+        Load Starter Criteria
+      </button>
+    </div>
+  </div>
+)}
+{/* ===== End Blank Canvas Banner ===== */}
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Weights Panel */}
@@ -436,22 +484,47 @@ const rowsWithScores = useMemo(() => {
             </div>
           )}
 
-          {activeTab === 'chart' && (
-            <div className="h-[460px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 40 }}>
-                  <XAxis dataKey="name" angle={-20} textAnchor="end" interval={0} height={60} />
-                  <YAxis domain={[0, 100]} />
-                  <Tooltip formatter={(v) => `${Number(v).toFixed(1)}`}/>
-                  <Bar dataKey="score" radius={[8, 8, 0, 0]}>
-                    {chartData.map((_, i) => (
-                      <Cell key={i} fill={rainbowMode ? rainbowColor(i, chartData.length) : pastelColors[i % pastelColors.length]} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          )}
+         {activeTab === 'chart' && (
+  chartData.length > 0 ? (
+    <div className="h-[460px] w-full">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
+          <XAxis
+            dataKey="name"
+            hide={true}
+            tick={false}
+            tickLine={false}
+            axisLine={false}
+          />
+          <YAxis domain={[0, 100]} />
+          <Tooltip
+            formatter={(v, _k, p) => [
+              `${Number(v).toFixed(1)}`,
+              p && p.payload ? p.payload.rawName : '',
+            ]}
+            labelFormatter={() => ''}
+          />
+          <Bar dataKey="score" radius={[8, 8, 0, 0]}>
+            {chartData.map((_, i) => (
+              <Cell
+                key={i}
+                fill={
+                  rainbowMode
+                    ? rainbowColor(i, chartData.length)
+                    : pastelColors[i % pastelColors.length]
+                }
+              />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  ) : (
+    <div className="text-center text-slate-600 text-sm py-10 bg-white/60 rounded-xl shadow-sm">
+      Add schools and criteria to generate a chart.
+    </div>
+  )
+)}
 
           {/* Aesthetic Rater */}
           <div>
