@@ -91,6 +91,8 @@ function normalizeCriterion(rows, key, higherIsBetter) {
   });
 }
 function EduAlignLanding({ onGuest, onSignIn }) {
+  const [leaving, setLeaving] = React.useState(false);
+
   // --- Step 3: Landing screen gate ---
 const isAuthenticated = Boolean(session);
 const shouldShowLanding = !isAuthenticated && !guestMode;
@@ -107,7 +109,11 @@ if (shouldShowLanding) {
 }
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-6 bg-[radial-gradient(1200px_600px_at_0%_0%,#fff0,rgba(255,0,122,0.12)),radial-gradient(900px_600px_at_100%_0%,#fff0,rgba(0,255,255,0.12)),radial-gradient(900px_600px_at_50%_100%,#fff0,rgba(99,102,241,0.12))]">
+    <div className={`min-h-screen w-full flex items-center justify-center p-6
+              bg-[radial-gradient(1200px_600px_at_0%_0%,#fff0,rgba(255,0,122,0.12)),
+                  radial-gradient(900px_600px_at_100%_0%,#fff0,rgba(0,255,150,0.12))]
+              transition-all duration-300
+              ${leaving ? 'opacity-0 blur-[1px] translate-y-2' : ''}`}>
       <div className="w-full max-w-3xl rounded-3xl border border-white/20 bg-white/20 backdrop-blur-xl shadow-2xl p-8 md:p-12">
         {/* Title */}
         <div className="text-center">
@@ -133,12 +139,13 @@ if (shouldShowLanding) {
           </button>
 
           <button
-            onClick={onGuest}
-            className="w-full sm:w-auto rounded-xl px-5 py-3 font-semibold shadow-lg
-                       bg-white/80 text-slate-800 hover:bg-white transition border border-white/60"
-          >
-            Continue as Guest
-          </button>
+  onClick={() => { setLeaving(true); setTimeout(onGuest, 280); }}
+  className="w-full sm:w-auto rounded-xl px-5 py-3 font-semibold shadow-lg
+             bg-white/80 text-slate-800 hover:bg-white transition border border-white/60"
+>
+  Continue as Guest
+</button>
+
         </div>
 
         {/* Footnote */}
