@@ -92,6 +92,29 @@ function normalizeCriterion(rows, key, higherIsBetter) {
 }
 
 export default function DentalRankingApp() {
+  // --- Minimal "auth" gate: guest or signed-in user ---
+const [session, setSession] = useState(null); // wire to real auth later
+const [guestMode, setGuestMode] = useState(() => {
+  return localStorage.getItem("edualign_guest") === "1";
+});
+
+// Call this when real sign-in succeeds later
+function onSignedIn(fakeSessionObject = { user: { id: "demo" } }) {
+  setSession(fakeSessionObject);
+  localStorage.removeItem("edualign_guest");
+  setGuestMode(false);
+}
+
+function continueAsGuest() {
+  localStorage.setItem("edualign_guest", "1");
+  setGuestMode(true);
+}
+
+function signOutEverywhere() {
+  setSession(null);
+  localStorage.removeItem("edualign_guest");
+}
+
   // ---- Blank canvas state ----
 const [schools, setSchools] = useState([]);            // start empty
 const [weights, setWeights] = useState({});            // no default weights yet
