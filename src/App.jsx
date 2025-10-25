@@ -172,13 +172,27 @@ function onSignedIn(fakeSessionObject = { user: { id: "demo" } }) {
 }
 
 function continueAsGuest() {
-  localStorage.setItem("edualign_guest", "1");
+  localStorage.setItem("edualign_guest","1");
   setGuestMode(true);
+  setActiveTab('data'); // optional: land guests on the Data tab
 }
 
 function signOutEverywhere() {
   setSession(null);
   localStorage.removeItem("edualign_guest");
+}
+const isAuthenticated = Boolean(session);
+const shouldShowLanding = !isAuthenticated && !guestMode;
+
+if (shouldShowLanding) {
+  return (
+    <EduAlignLanding
+      onGuest={continueAsGuest}
+      onSignIn={() => {
+        console.log("Sign-in clicked. Wire to real auth when ready.");
+      }}
+    />
+  );
 }
 
   // ---- Blank canvas state ----
