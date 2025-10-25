@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Plus, Trash2, Star, BarChart2, Sparkles, Palette, Download as DownloadIcon, Upload as UploadIcon } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from "recharts";
+import ProfileBar from "./ProfileBar";
+import { getUser, ensureUserRanking, loadData, saveData } from "./cloud";
 
 // Pastel palette for cute vibes (fallback when rainbow is off)
 const pastelColors = [
@@ -90,16 +92,38 @@ function normalizeCriterion(rows, key, higherIsBetter) {
 }
 
 export default function DentalRankingApp() {
-  const [schools, setSchools] = useState(initialSchools);
-  const [weights, setWeights] = useState({ ...defaultWeights });
-  const [criteria, setCriteria] = useState(CRITERIA_DEFAULT);
-  const [selectedIds, setSelectedIds] = useState(new Set());
-  const [rainbowMode, setRainbowMode] = useState(true);
-  const [activeTab, setActiveTab] = useState('data');
-  const [raterOpen, setRaterOpen] = useState(false);
-  const [addOpen, setAddOpen] = useState(false);
-  const [newCrit, setNewCrit] = useState({ label: "", key: "", higherIsBetter: true, tip: "" });
-  const [addError, setAddError] = useState("");
+  // ---- Blank canvas state ----
+const [schools, setSchools] = useState([]);            // start empty
+const [weights, setWeights] = useState({});            // no default weights yet
+const [rainbowMode, setRainbowMode] = useState(true);  // rainbow toggle stays on
+
+// All possible criteria (reuse your same keys later)
+const ALL_CRITERIA = [
+  { key: "cityBlackPct", label: "% Black in City", higherIsBetter: true, tip: "" },
+  { key: "classBlackPct", label: "% Black in Class", higherIsBetter: true, tip: "" },
+  { key: "weatherWarmth", label: "Weather (Warmth)", higherIsBetter: true, tip: "" },
+  { key: "cityLike", label: "How Much I Like the City", higherIsBetter: true, tip: "" },
+  { key: "looks", label: "Aesthetic (Your Score)", higherIsBetter: true, tip: "" },
+  { key: "price", label: "Price / Cost of Attendance", higherIsBetter: false, tip: "" },
+  { key: "timeline", label: "Breaks per Year", higherIsBetter: true, tip: "" },
+  { key: "perks", label: "Perks", higherIsBetter: true, tip: "" },
+  { key: "gradReqs", label: "Grad Requirements Burden", higherIsBetter: false, tip: "" },
+  { key: "specialty", label: "Specialty Placements", higherIsBetter: true, tip: "" },
+];
+
+// Which criteria are currently enabled (none by default)
+const [enabledCriteriaKeys, setEnabledCriteriaKeys] = useState([]);
+
+// Computed active criteria list used everywhere else
+const ACTIVE = useMemo(
+  () => ALL_CRITERIA.filter(c => enabledCriteriaKeys.includes(c.key)),
+  [enabledCriteriaKeys]
+);
+
+// Keep other existing UI state if you need tabs/modals
+const [activeTab, setActiveTab] = useState('data');
+const [addOpen, setAddOpen] = useState(false);
+
 
   // Load saved
   useEffect(() => {
