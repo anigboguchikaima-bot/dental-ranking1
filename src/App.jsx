@@ -112,11 +112,14 @@ const ALL_CRITERIA = [
 ];
 
 // Which criteria are currently enabled (none by default)
-const [enabledCriteriaKeys, setEnabledCriteriaKeys] = useState<string[]>([]);
+const [enabledCriteriaKeys, setEnabledCriteriaKeys] = useState([]);
+
+// Computed active criteria list used everywhere else
 const ACTIVE = useMemo(
-  () => ALL_CRITERIA.filter(c => enabledCriteriaKeys.includes(c.key)),
+  () => ALL_CRITERIA.filter((c) => enabledCriteriaKeys.includes(c.key)),
   [enabledCriteriaKeys]
 );
+
 
 );
 
