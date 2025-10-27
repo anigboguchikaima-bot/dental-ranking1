@@ -1,4 +1,4 @@
-fimport React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Plus, Trash2, Star, BarChart2, Sparkles, Palette, Download as DownloadIcon, Upload as UploadIcon } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from "recharts";
 import ProfileBar from "./ProfileBar";
