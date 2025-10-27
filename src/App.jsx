@@ -183,6 +183,11 @@ if (!session && !guestMode) {
   );
 }
   
+return (
+  <div style={{ color: "limegreen", padding: 16, fontSize: 18 }}>
+    A3
+  </div>
+);
 
 
   // ---- Blank canvas state ----
@@ -190,75 +195,6 @@ const [schools, setSchools] = useState([]);            // start empty
 const [weights, setWeights] = useState({});            // no default weights yet
 const [rainbowMode, setRainbowMode] = useState(true);  // rainbow toggle stays on
 
-
-  return (
-  <div
-    className="min-h-screen p-6 text-white"
-    style={{
-      background:
-        "radial-gradient(1200px 600px at 0% 0%, rgba(255,0,122,0.12), transparent 60%), radial-gradient(900px 600px at 100% 0%, rgba(0,255,150,0.12), transparent 60%)",
-    }}
-  >
-    {/* Header */}
-    <div className="max-w-4xl mx-auto">
-      <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
-        <span
-          className="bg-clip-text text-transparent"
-          style={{
-            backgroundImage:
-              "conic-gradient(from_0deg_at_50%_50%,#ef4444,#f59e0b,#84cc16,#06b6d4,#8b5cf6,#ef4444)",
-          }}
-        >
-          EduAlign
-        </span>
-      </h1>
-      <p className="mt-2 text-sm md:text-base text-white/90 drop-shadow">
-        Where Data Meets Destiny
-      </p>
-
-      {/* Quick debug info */}
-      <div className="mt-6 text-white/90">
-        <div className="text-sm">
-          <strong>Mode:</strong>{" "}
-          {session ? "Signed in (demo)" : guestMode ? "Guest" : "Unknown"}
-        </div>
-        <div className="text-sm">
-          <strong>Schools:</strong> {schools.length}
-        </div>
-      </div>
-
-      {/* Controls */}
-      <div className="mt-6 flex flex-wrap gap-3">
-        <button
-          onClick={() => setRainbowMode(!rainbowMode)}
-          className="rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-lg hover:opacity-90 transition"
-          style={{
-            background:
-              "linear-gradient(90deg,#ef4444,#f59e0b,#22c55e,#06b6d4,#8b5cf6)",
-          }}
-        >
-          Toggle Rainbow ({rainbowMode ? "On" : "Off"})
-        </button>
-
-        <button
-          onClick={signOutEverywhere}
-          className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-900 bg-white/90 hover:bg-white transition"
-          title="Clears demo session and guest flag"
-        >
-          Sign out
-        </button>
-      </div>
-
-      {/* Placeholder app area */}
-      <div className="mt-8 rounded-2xl border border-white/20 bg-white/10 p-6 backdrop-blur">
-        <p className="text-white/90">
-          ✅ Authenticated shell is rendering. Next we’ll plug in your real UI
-          (tables, criteria, chart, etc.).
-        </p>
-      </div>
-    </div>
-  </div>
-);
 
   
 // All possible criteria (reuse your same keys later)
