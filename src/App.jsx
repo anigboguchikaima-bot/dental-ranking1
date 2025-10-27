@@ -184,8 +184,8 @@ if (!session && !guestMode) {
 }
   
   return (
-    <div style={{ color: "#fff", padding: 24, fontSize: 20 }}>
-      CHECKPOINT A
+    <div style={{ color: "limegreen", padding: 24, fontSize: 20 }}>
+      CHECKPOINT B
     </div>
   );
 
