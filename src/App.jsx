@@ -93,20 +93,6 @@ function normalizeCriterion(rows, key, higherIsBetter) {
 function EduAlignLanding({ onGuest, onSignIn }) {
   const [leaving, setLeaving] = React.useState(false);
 
-  // --- Step 3: Landing screen gate ---
-const isAuthenticated = Boolean(session);
-const shouldShowLanding = !isAuthenticated && !guestMode;
-
-if (shouldShowLanding) {
-  return (
-    <EduAlignLanding
-      onGuest={continueAsGuest}
-      onSignIn={() => {
-        console.log("Sign-in clicked. Wire to real auth when ready.");
-      }}
-    />
-  );
-}
 
   return (
     <div className={`min-h-screen w-full flex items-center justify-center p-6
@@ -181,15 +167,15 @@ function signOutEverywhere() {
   setSession(null);
   localStorage.removeItem("edualign_guest");
 }
-const isAuthenticated = Boolean(session);
-const shouldShowLanding = !isAuthenticated && !guestMode;
 
-if (shouldShowLanding) {
+// --- Gate: Show landing screen if user not signed in and not guest ---
+if (!session && !guestMode) {
   return (
     <EduAlignLanding
       onGuest={continueAsGuest}
       onSignIn={() => {
-        console.log("Sign-in clicked. Wire to real auth when ready.");
+        // Temporary mock login — replace with real Supabase auth later
+        onSignedIn({ user: { id: "demo" } });
       }}
     />
   );
