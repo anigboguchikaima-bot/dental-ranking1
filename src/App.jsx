@@ -183,6 +183,15 @@ if (!session && !guestMode) {
   );
 }
   
+// TEMP TEST: this should render right after you click Sign In or Continue as Guest
+console.log("TEMP: gate passed – rendering app shell");
+return (
+  <div style={{ color: "#fff", padding: 24, fontSize: 20 }}>
+    App shell loaded ✔ (temp). If you see this, the gate worked.
+  </div>
+);
+
+  
 console.log("EduAlign app rendering → session:", session, "guestMode:", guestMode);
 
 
