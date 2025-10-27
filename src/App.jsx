@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+fimport React, { useEffect, useMemo, useState } from "react";
 import { Plus, Trash2, Star, BarChart2, Sparkles, Palette, Download as DownloadIcon, Upload as UploadIcon } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from "recharts";
 import ProfileBar from "./ProfileBar";
@@ -205,6 +205,13 @@ const ALL_CRITERIA = [
   { key: "gradReqs", label: "Grad Requirements Burden", higherIsBetter: false, tip: "" },
   { key: "specialty", label: "Specialty Placements", higherIsBetter: true, tip: "" },
 ];
+// === CHECKPOINT B ===
+console.log("CHECKPOINT B reached");
+return (
+  <div style={{ color: "#fff", padding: 24, fontSize: 20 }}>
+    CHECKPOINT B
+  </div>
+);
 
 // Which criteria are currently enabled (none by default)
 const [enabledCriteriaKeys, setEnabledCriteriaKeys] = useState([]);
