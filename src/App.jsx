@@ -150,36 +150,41 @@ const [guestMode, setGuestMode] = useState(() => {
   return localStorage.getItem("edualign_guest") === "1";
 });
 
-// Call this when real sign-in succeeds later
 function onSignedIn(fakeSessionObject = { user: { id: "demo" } }) {
+  // mock “login”: set a session object
   setSession(fakeSessionObject);
+  // make sure we are NOT in guest mode anymore
   localStorage.removeItem("edualign_guest");
   setGuestMode(false);
 }
 
 function continueAsGuest() {
-  localStorage.setItem("edualign_guest","1");
+  // mark as guest and clear any session
+  localStorage.setItem("edualign_guest", "1");
   setGuestMode(true);
-  setActiveTab('data'); // optional: land guests on the Data tab
+  setSession(null);
 }
 
 function signOutEverywhere() {
+  // optional convenience sign-out
   setSession(null);
   localStorage.removeItem("edualign_guest");
 }
 
+
 // --- Gate: Show landing screen if user not signed in and not guest ---
+// --- Gate: show landing screen if NOT signed in and NOT guest ---
 if (!session && !guestMode) {
   return (
     <EduAlignLanding
       onGuest={continueAsGuest}
-      onSignIn={() => {
-        // Temporary mock login — replace with real Supabase auth later
-        onSignedIn({ user: { id: "demo" } });
-      }}
+      onSignIn={() => onSignedIn({ user: { id: "demo" } })}
     />
   );
 }
+  
+console.log("EduAlign app rendering → session:", session, "guestMode:", guestMode);
+
 
   // ---- Blank canvas state ----
 const [schools, setSchools] = useState([]);            // start empty
