@@ -183,18 +183,17 @@ if (!session && !guestMode) {
   );
 }
   
-return (
-  <div style={{ color: "limegreen", padding: 16, fontSize: 18 }}>
-    A3
-  </div>
-);
-
 
   // ---- Blank canvas state ----
 const [schools, setSchools] = useState([]);            // start empty
 const [weights, setWeights] = useState({});            // no default weights yet
 const [rainbowMode, setRainbowMode] = useState(true);  // rainbow toggle stays on
 
+return (
+  <div style={{ color: "limegreen", padding: 16, fontSize: 18 }}>
+    A4
+  </div>
+);
 
   
 // All possible criteria (reuse your same keys later)
