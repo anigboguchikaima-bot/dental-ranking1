@@ -144,6 +144,22 @@ function EduAlignLanding({ onGuest, onSignIn }) {
 }
 
 export default function DentalRankingApp() {
+  // === CHECKPOINT A ===
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "grid",
+        placeItems: "center",
+        background:
+          "radial-gradient(1200px 600px at 0% 0%, #fff0, rgba(255,0,122,0.12)), radial-gradient(900px 600px at 100% 100%, #fff0, rgba(0,255,150,0.12))",
+        color: "#fff",
+        fontSize: 28,
+      }}
+    >
+      CHECKPOINT A
+    </div>
+  );
   // --- Minimal "auth" gate: guest or signed-in user ---
 const [session, setSession] = useState(null); // wire to real auth later
 const [guestMode, setGuestMode] = useState(() => {
