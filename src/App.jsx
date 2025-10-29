@@ -280,15 +280,7 @@ useEffect(() => {
   return () => clearTimeout(t);
 }, [user, recordId, schools, weights, enabledCriteriaKeys, rainbowMode]);
 
-  // --- Gate: Show landing screen if user not signed in and not guest ---
-if (!session && !guestMode) {
-  return (
-    <EduAlignLanding
-      onGuest={continueAsGuest}
-      onSignIn={() => onSignedIn({ user: { id: "demo" } })}
-    />
-  );
-}
+
 
  // Total weight for currently enabled criteria
 const totalWeight = useMemo(
@@ -397,7 +389,17 @@ function removeEnabledCriterion(key) {
   }
 
   const bgRainbow = "bg-[radial-gradient(1200px_600px_at_0%_0%,#fff0,rgba(255,0,122,0.12)),radial-gradient(900px_600px_at_100%_0%,#fff0,rgba(0,200,255,0.12)),radial-gradient(900px_600px_at_100%_100%,#fff0,rgba(0,255,150,0.12)),radial-gradient(900px_600px_at_0%_100%,#fff0,rgba(255,170,0,0.12))]";
-
+ 
+  // --- Gate: Show landing screen if user not signed in and not guest ---
+if (!session && !guestMode) {
+  return (
+    <EduAlignLanding
+      onGuest={continueAsGuest}
+      onSignIn={() => onSignedIn({ user: { id: "demo" } })}
+    />
+  );
+}
+  
   return (
     <div className={`min-h-screen p-4 md:p-8 space-y-6 ${rainbowMode ? bgRainbow : "bg-gradient-to-b from-rose-50 via-sky-50 to-violet-50"}`}>
       {/* Header */}
