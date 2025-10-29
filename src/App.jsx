@@ -172,17 +172,6 @@ function signOutEverywhere() {
 }
 
 
-// --- Gate: Show landing screen if user not signed in and not guest ---
-// --- Gate: show landing screen if NOT signed in and NOT guest ---
-if (!session && !guestMode) {
-  return (
-    <EduAlignLanding
-      onGuest={continueAsGuest}
-      onSignIn={() => onSignedIn({ user: { id: "demo" } })}
-    />
-  );
-}
-  
 
   // ---- Blank canvas state ----
 const [schools, setSchools] = useState([]);            // start empty
@@ -291,7 +280,16 @@ useEffect(() => {
   return () => clearTimeout(t);
 }, [user, recordId, schools, weights, enabledCriteriaKeys, rainbowMode]);
 
-  
+  // --- Gate: Show landing screen if user not signed in and not guest ---
+if (!session && !guestMode) {
+  return (
+    <EduAlignLanding
+      onGuest={continueAsGuest}
+      onSignIn={() => onSignedIn({ user: { id: "demo" } })}
+    />
+  );
+}
+
  // Total weight for currently enabled criteria
 const totalWeight = useMemo(
   () => ACTIVE.reduce((sum, c) => sum + Number(weights[c.key] || 0), 0),
