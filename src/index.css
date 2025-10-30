@@ -1,3 +1,21 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* 🌈 Rainbow text effect */
+.rainbow-text {
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    #ef4444,
+    #f59e0b,
+    #84cc16,
+    #06b6d4,
+    #8b5cf6,
+    #ef4444
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+After saving that file, you can now use the class anywhere in your JS
