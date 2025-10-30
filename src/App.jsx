@@ -602,14 +602,26 @@ async function signOutEverywhere() {
       }`}
     >
       {/* Header */}
-      <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight flex items-center gap-2">
-            <span className="bg-clip-text text-transparent bg-[conic-gradient(from_0deg_at_50%_50%,#ef4444,#f59e0b,#84cc16,#06b6d4,#8b5cf6,#ef4444)]">
-              EduAlign
-            </span>
-            <Sparkles className="w-6 h-6 md:w-7 md:h-7 text-fuchsia-500" />
-          </h1>
+<header className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+  <div>
+    <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight flex items-center gap-2">
+      <span className="bg-clip-text text-transparent bg-[conic-gradient(from_0deg_at_50%_50%,#ef4444,#f59e0b,#84cc16,#06b6d4,#8b5cf6,#ef4444)]">
+        EduAlign
+      </span>
+      <Sparkles className="w-6 h-6 md:w-7 md:h-7 text-fuchsia-500" />
+    </h1>
+  </div>
+
+  <div className="flex items-center gap-2">
+    <button
+      onClick={signOutEverywhere}
+      className="rounded-2xl px-3 py-2 border bg-white hover:bg-rose-50 text-sm font-semibold"
+    >
+      Log out
+    </button>
+  </div>
+</header>
+
 
           <p className="mt-1 text-sm md:text-base text-white/90 drop-shadow-[0_1px_1px_rgb(0_0_0_/_0.25)]">
             <span className="bg-clip-text text-transparent bg-[linear-gradient(90deg,#f43f5e,#f59e0b,#22c55e,#06b6d4,#8b5cf6)]">
