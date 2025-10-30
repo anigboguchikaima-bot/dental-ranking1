@@ -72,42 +72,75 @@ function safeKey(s) {
 const STORAGE_KEY = "dental-ranking-data-v1";
 
 // master criteria
+// this is your master list of criteria — neutral + generally applicable
 const ALL_CRITERIA = [
-  { key: "cityBlackPct", label: "% Black in City", higherIsBetter: true, tip: "" },
-  { key: "classBlackPct", label: "% Black in Class", higherIsBetter: true, tip: "" },
-  { key: "weatherWarmth", label: "Weather (Warmth)", higherIsBetter: true, tip: "" },
-  { key: "cityLike", label: "How Much I Like the City", higherIsBetter: true, tip: "" },
-  { key: "looks", label: "Aesthetic (Your Score)", higherIsBetter: true, tip: "" },
-  { key: "price", label: "Price / Cost of Attendance", higherIsBetter: false, tip: "" },
-  { key: "timeline", label: "Breaks per Year", higherIsBetter: true, tip: "" },
-  { key: "perks", label: "Perks", higherIsBetter: true, tip: "" },
-  { key: "gradReqs", label: "Grad Requirements Burden", higherIsBetter: false, tip: "" },
-  { key: "specialty", label: "Specialty Placements", higherIsBetter: true, tip: "" },
+  {
+    key: "price",
+    label: "Cost / COA",
+    higherIsBetter: false,
+    tip: "Total cost of attendance or best estimate. Lower is better.",
+  },
+  {
+    key: "cityLike",
+    label: "Location Fit",
+    higherIsBetter: true,
+    tip: "How much you'd actually want to live there (0–10).",
+  },
+  {
+    key: "weatherWarmth",
+    label: "Weather / Climate",
+    higherIsBetter: true,
+    tip: "Warmer / nicer weather scores higher.",
+  },
+  {
+    key: "looks",
+    label: "Campus / Facility Aesthetic",
+    higherIsBetter: true,
+    tip: "How nice the school, clinic, and facilities look to you.",
+  },
+  {
+    key: "curriculum",
+    label: "Curriculum / Schedule",
+    higherIsBetter: true,
+    tip: "Block vs traditional, P/F, exam spread, built-in study time.",
+  },
+  {
+    key: "clinical",
+    label: "Clinical Exposure",
+    higherIsBetter: true,
+    tip: "How early/often you get patients, rotations, and real cases.",
+  },
+  {
+    key: "timeline",
+    label: "Breaks / Academic Calendar",
+    higherIsBetter: true,
+    tip: "More breaks or better-distributed ones = higher score.",
+  },
 ];
 
+
+// what shows up for brand-new users
 const CRITERIA_DEFAULT = [
-  { key: "cityBlackPct", label: "% Black in City", higherIsBetter: true, tip: "" },
-  { key: "weatherWarmth", label: "Weather (Warmth)", higherIsBetter: true, tip: "" },
-  { key: "cityLike", label: "How Much I Like the City", higherIsBetter: true, tip: "" },
-  { key: "looks", label: "Aesthetic (Your Score)", higherIsBetter: true, tip: "" },
-  { key: "price", label: "Price / Cost of Attendance", higherIsBetter: false, tip: "" },
-  { key: "timeline", label: "Breaks per Year", higherIsBetter: true, tip: "" },
-  { key: "perks", label: "Perks", higherIsBetter: true, tip: "" },
-  { key: "gradReqs", label: "Grad Requirements Burden", higherIsBetter: false, tip: "" },
-  { key: "specialty", label: "Specialty Placements", higherIsBetter: true, tip: "" },
+  { key: "price", label: "Cost / COA", higherIsBetter: false, tip: "Lower is better." },
+  { key: "cityLike", label: "Location Fit", higherIsBetter: true, tip: "Do I want to live here?" },
+  { key: "weatherWarmth", label: "Weather / Climate", higherIsBetter: true, tip: "Nicer climate scores higher." },
+  { key: "looks", label: "Campus / Facility Aesthetic", higherIsBetter: true, tip: "How good the school looks to you." },
+  { key: "curriculum", label: "Curriculum / Schedule", higherIsBetter: true, tip: "Flexible, chill, or P/F → higher." },
+  { key: "clinical", label: "Clinical Exposure", higherIsBetter: true, tip: "Earlier/more patients → higher." },
+  { key: "timeline", label: "Breaks / Academic Calendar", higherIsBetter: true, tip: "More breaks → better." },
 ];
+
 
 const defaultWeights = {
-  cityBlackPct: 25,
-  weatherWarmth: 12,
+  price: 18,
+  cityLike: 16,
+  weatherWarmth: 8,
   looks: 10,
-  price: 12,
+  curriculum: 14,
+  clinical: 18,
   timeline: 8,
-  perks: 6,
-  gradReqs: 6,
-  specialty: 6,
-  cityLike: 15,
 };
+
 
 // normalization
 function minMax(values) {
@@ -1031,13 +1064,8 @@ export default function DentalRankingApp() {
                           <NumericCell
                             value={row[c.key]}
                             onChange={(v) => updateField(row.id, c.key, v)}
-                            placeholder={
-                              c.key === "looks"
-                                ? "← your score"
-                                : c.key === "cityLike"
-                                ? "0–10"
-                                : ""
-                            }
+                  placeholder={c.key === 'looks' ? 'rate the campus 0–10' : ...}
+
                           />
                         </td>
                       ))}
