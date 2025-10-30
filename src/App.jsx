@@ -962,135 +962,153 @@ export default function DentalRankingApp() {
             <div className="overflow-x-auto rounded-2xl border">
               <table className="w-full text-sm">
                 <thead className="bg-pink-50/70">
-                  <tr>
-                    <th className="p-3 text-left w-[40px]">
-                      <input
-                        type="checkbox"
-                        checked={allSelected}
-                        onChange={() => {
-                          if (allSelected) {
-                            setSelectedIds(new Set());
-                          } else {
-                            setSelectedIds(
-                              new Set(rowsWithScores.map((r) => r.id))
-                            );
-                          }
-                        }}
-                      />
-                    </th>
-                    <th className="p-3 text-left">Rank</th>
-                    <th className="p-3 text-left">School</th>
-                    <th className="p-3 text-left">City</th>
-                    <th className="p-3 text-left">State</th>
-                    <th className="p-3 text-left">Deadline</th>
-                    {criteria.map((c) => (
-                      <th
-                        key={String(c.key)}
-                        className="p-3 text-left whitespace-nowrap"
-                        title={c.tip}
-                      >
-                        {c.label}
-                      </th>
-                    ))}
-                    <th className="p-3 text-left">Combined</th>
-                    <th className="p-3 text-left"></th>
-                  </tr>
-                </thead>
+  <tr>
+    {/* select-all checkbox */}
+    <th className="p-3 text-left w-[40px]">
+      <input
+        type="checkbox"
+        checked={allSelected}
+        onChange={() => {
+          if (allSelected) {
+            setSelectedIds(new Set());
+          } else {
+            setSelectedIds(new Set(rowsWithScores.map((r) => r.id)));
+          }
+        }}
+      />
+    </th>
+
+    {/* NEW: delete column header */}
+    <th className="p-3 text-left w-[50px]">Del</th>
+
+    <th className="p-3 text-left">Rank</th>
+    <th className="p-3 text-left">School</th>
+    <th className="p-3 text-left">City</th>
+    <th className="p-3 text-left">State</th>
+    <th className="p-3 text-left">Deadline</th>
+
+    {criteria.map((c) => (
+      <th
+        key={String(c.key)}
+        className="p-3 text-left whitespace-nowrap"
+        title={c.tip}
+      >
+        {c.label}
+      </th>
+    ))}
+
+    <th className="p-3 text-left">Combined</th>
+  </tr>
+</thead>
+
                 <tbody>
-                  {rowsWithScores.map((row, i) => (
-                    <tr
-                      key={row.id}
-                      className="border-t transition-colors"
-                      style={{
-                        background: rainbowMode
-                          ? rainbowAlpha(i, rowsWithScores.length, 0.08)
-                          : undefined,
-                      }}
-                    >
-                      <td className="p-3">
-                        <input
-                          type="checkbox"
-                          checked={selectedIds.has(row.id)}
-                          onChange={() => {
-                            setSelectedIds((prev) => {
-                              const s = new Set(prev);
-                              if (s.has(row.id)) s.delete(row.id);
-                              else s.add(row.id);
-                              return s;
-                            });
-                          }}
-                        />
-                      </td>
-                      <td className="p-3 font-medium">
-                        <span className="inline-flex items-center gap-2">
-                          <span
-                            className="inline-block w-2 h-5 rounded-full"
-                            style={{
-                              background: rainbowMode
-                                ? rainbowColor(i, rowsWithScores.length)
-                                : pastelColors[i % pastelColors.length],
-                            }}
-                          />
-                          {row.rank}
-                        </span>
-                      </td>
-                      <td className="p-3 min-w-[260px]">
-                        <InlineEdit
-                          value={row.name}
-                          onChange={(v) => updateField(row.id, "name", v)}
-                        />
-                      </td>
-                      <td className="p-3">
-                        <InlineEdit
-                          value={row.city || ""}
-                          onChange={(v) => updateField(row.id, "city", v)}
-                        />
-                      </td>
-                      <td className="p-3 w-[80px]">
-                        <InlineEdit
-                          value={row.state || ""}
-                          onChange={(v) => updateField(row.id, "state", v)}
-                        />
-                      </td>
-                      <td className="p-3 w-[140px]">
-                        <InlineEdit
-                          value={row.deadline || ""}
-                          placeholder="YYYY-MM-DD"
-                          onChange={(v) => updateField(row.id, "deadline", v)}
-                        />
-                      </td>
-                      {criteria.map((c) => (
-                        <td key={String(c.key)} className="p-3 w-[120px]">
-                          <NumericCell
-                            value={row[c.key]}
-                            onChange={(v) => updateField(row.id, c.key, v)}
-                            placeholder={
-                              c.key === "looks"
-                                ? "rate the campus 0–10"
-                                : c.key === "cityLike"
-                                ? "0–10"
-                                : c.key === "curriculum"
-                                ? "flexibility 0–10"
-                                : c.key === "clinical"
-                                ? "exposure 0–10"
-                                : ""
-                            }
-                          />
-                        </td>
-                      ))}
-                      <td className="p-3 font-semibold">
-                        {(row.composite ?? 0).toFixed(1)}
-                      </td>
-                      <td className="p-3">
-                        <button
-                          onClick={() => removeSchool(row.id)}
-                          className="p-2 rounded-xl hover:bg-rose-100"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                 {rowsWithScores.map((row, i) => (
+  <tr
+    key={row.id}
+    className="border-t transition-colors"
+    style={{
+      background: rainbowMode
+        ? rainbowAlpha(i, rowsWithScores.length, 0.08)
+        : undefined,
+    }}
+  >
+    {/* 1. row checkbox */}
+    <td className="p-3">
+      <input
+        type="checkbox"
+        checked={selectedIds.has(row.id)}
+        onChange={() => {
+          setSelectedIds((prev) => {
+            const s = new Set(prev);
+            if (s.has(row.id)) s.delete(row.id);
+            else s.add(row.id);
+            return s;
+          });
+        }}
+      />
+    </td>
+
+    {/* 2. NEW: delete button on the left */}
+    <td className="p-3">
+      <button
+        onClick={() => removeSchool(row.id)}
+        className="p-2 rounded-xl hover:bg-rose-100"
+        title="Delete this school"
+      >
+        <Trash2 className="w-4 h-4 text-rose-500" />
+      </button>
+    </td>
+
+    {/* 3. rank */}
+    <td className="p-3 font-medium">
+      <span className="inline-flex items-center gap-2">
+        <span
+          className="inline-block w-2 h-5 rounded-full"
+          style={{
+            background: rainbowMode
+              ? rainbowColor(i, rowsWithScores.length)
+              : pastelColors[i % pastelColors.length],
+          }}
+        />
+        {row.rank}
+      </span>
+    </td>
+
+    {/* 4. school + rest, same as before */}
+    <td className="p-3 min-w-[260px]">
+      <InlineEdit
+        value={row.name}
+        onChange={(v) => updateField(row.id, "name", v)}
+      />
+    </td>
+    <td className="p-3">
+      <InlineEdit
+        value={row.city || ""}
+        onChange={(v) => updateField(row.id, "city", v)}
+      />
+    </td>
+    <td className="p-3 w-[80px]">
+      <InlineEdit
+        value={row.state || ""}
+        onChange={(v) => updateField(row.id, "state", v)}
+      />
+    </td>
+    <td className="p-3 w-[140px]">
+      <InlineEdit
+        value={row.deadline || ""}
+        placeholder="YYYY-MM-DD"
+        onChange={(v) => updateField(row.id, "deadline", v)}
+      />
+    </td>
+
+    {/* criteria cells – keep exactly how you had them */}
+    {criteria.map((c) => (
+      <td key={String(c.key)} className="p-3 w-[120px]">
+        <NumericCell
+          value={row[c.key]}
+          onChange={(v) => updateField(row.id, c.key, v)}
+          placeholder={
+            c.key === "looks"
+              ? "rate the campus 0–10"
+              : c.key === "cityLike"
+              ? "0–10"
+              : c.key === "curriculum"
+              ? "flexibility 0–10"
+              : c.key === "clinical"
+              ? "exposure 0–10"
+              : ""
+          }
+        />
+      </td>
+    ))}
+
+    {/* combined score */}
+    <td className="p-3 font-semibold">
+      {(row.composite ?? 0).toFixed(1)}
+    </td>
+  </tr>
+))}
+
                 </tbody>
               </table>
             </div>
