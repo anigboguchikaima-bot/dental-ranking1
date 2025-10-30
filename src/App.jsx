@@ -593,108 +593,96 @@ async function signOutEverywhere() {
   }
 
   /* 8. MAIN RENDER (your layout) */
-  return (
-    <div
-      className={`min-h-screen p-4 md:p-8 space-y-6 ${
-        rainbowMode
-          ? bgRainbow
-          : "bg-gradient-to-b from-rose-50 via-sky-50 to-violet-50"
-      }`}
-    >
-      {/* Header */}
-<header className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-  <div>
-    <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight flex items-center gap-2">
-      <span className="bg-clip-text text-transparent bg-[conic-gradient(from_0deg_at_50%_50%,#ef4444,#f59e0b,#84cc16,#06b6d4,#8b5cf6,#ef4444)]">
-        EduAlign
-      </span>
-      <Sparkles className="w-6 h-6 md:w-7 md:h-7 text-fuchsia-500" />
-    </h1>
+ return (
+  <div
+    className={`min-h-screen p-4 md:p-8 space-y-6 ${
+      rainbowMode
+        ? bgRainbow
+        : "bg-gradient-to-b from-rose-50 via-sky-50 to-violet-50"
+    }`}
+  >
+    {/* Header */}
+    <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      <div>
+        <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight flex items-center gap-2">
+          <span className="bg-clip-text text-transparent bg-[conic-gradient(from_0deg_at_50%_50%,#ef4444,#f59e0b,#84cc16,#06b6d4,#8b5cf6,#ef4444)]">
+            EduAlign
+          </span>
+          <Sparkles className="w-6 h-6 md:w-7 md:h-7 text-fuchsia-500" />
+        </h1>
+
+        {/* move this INSIDE the left header block */}
+        <p className="mt-1 text-sm md:text-base text-white/90 drop-shadow-[0_1px_1px_rgb(0_0_0_/_0.25)]">
+          <span className="bg-clip-text text-transparent bg-[linear-gradient(90deg,#f43f5e,#f59e0b,#22c55e,#06b6d4,#8b5cf6)]">
+            Where Data Meets Destiny
+          </span>
+        </p>
+      </div>
+
+      {/* right side header controls */}
+      <div className="flex items-center gap-2 flex-wrap">
+        {/* NEW: logout button */}
+        <button
+          onClick={signOutEverywhere}
+          className="rounded-2xl px-3 py-2 border bg-white hover:bg-rose-50 text-sm font-semibold"
+        >
+          Log out
+        </button>
+
+        <label className="flex items-center gap-2 px-3 py-2 rounded-2xl border bg-white/70 cursor-pointer select-none">
+          <Palette className="w-4 h-4" />
+          <span className="text-sm">Rainbow mode</span>
+          <input
+            type="checkbox"
+            className="h-4 w-4"
+            checked={rainbowMode}
+            onChange={(e) => setRainbowMode(e.target.checked)}
+          />
+        </label>
+
+        <button
+          onClick={addSchool}
+          className="rounded-2xl px-3 py-2 text-white bg-[linear-gradient(90deg,#ff80b5,#9089fc)] hover:opacity-90 flex items-center gap-2"
+        >
+          <Plus className="w-4 h-4" />
+          Add School
+        </button>
+
+        <button
+          onClick={deleteSelected}
+          disabled={selectedIds.size === 0}
+          className={`rounded-2xl px-3 py-2 border ${
+            selectedIds.size === 0
+              ? "opacity-50 cursor-not-allowed"
+              : "hover:bg-rose-50"
+          }`}
+        >
+          Delete Selected
+        </button>
+
+        <label className="inline-flex items-center gap-2 cursor-pointer border rounded-2xl px-3 py-2 bg-white/80">
+          <UploadIcon className="w-4 h-4" />
+          <span>Import</span>
+          <input
+            type="file"
+            accept="application/json"
+            onChange={importJSON}
+            className="hidden"
+          />
+        </label>
+
+        <button
+          onClick={exportJSON}
+          className="rounded-2xl px-3 py-2 border border-fuchsia-200 bg-white flex items-center gap-2"
+        >
+          <DownloadIcon className="w-4 h-4" />
+          Export
+        </button>
+      </div>
+    </header>
+    {/* ...the rest of your page... */}
   </div>
-
-  <div className="flex items-center gap-2">
-    <button
-      onClick={signOutEverywhere}
-      className="rounded-2xl px-3 py-2 border bg-white hover:bg-rose-50 text-sm font-semibold"
-    >
-      Log out
-    </button>
-  </div>
-</header>
-
-
-          <p className="mt-1 text-sm md:text-base text-white/90 drop-shadow-[0_1px_1px_rgb(0_0_0_/_0.25)]">
-            <span className="bg-clip-text text-transparent bg-[linear-gradient(90deg,#f43f5e,#f59e0b,#22c55e,#06b6d4,#8b5cf6)]">
-              Where Data Meets Destiny
-            </span>
-          </p>
-        </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          <label className="flex items-center gap-2 px-3 py-2 rounded-2xl border bg-white/70 cursor-pointer select-none">
-            <Palette className="w-4 h-4" />
-            <span className="text-sm">Rainbow mode</span>
-            <input
-              type="checkbox"
-              className="h-4 w-4"
-              checked={rainbowMode}
-              onChange={(e) => setRainbowMode(e.target.checked)}
-            />
-          </label>
-          <button
-            onClick={addSchool}
-            className="rounded-2xl px-3 py-2 text-white bg-[linear-gradient(90deg,#ff80b5,#9089fc)] hover:opacity-90 flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Add School
-          </button>
-          <button
-            onClick={deleteSelected}
-            disabled={selectedIds.size === 0}
-            className={`rounded-2xl px-3 py-2 border ${
-              selectedIds.size === 0
-                ? "opacity-50 cursor-not-allowed"
-                : "hover:bg-rose-50"
-            }`}
-          >
-            Delete Selected
-          </button>
-          <label className="inline-flex items-center gap-2 cursor-pointer border rounded-2xl px-3 py-2 bg-white/80">
-            <UploadIcon className="w-4 h-4" />
-            <span>Import</span>
-            <input
-              type="file"
-              accept="application/json"
-              onChange={importJSON}
-              className="hidden"
-            />
-          </label>
-          <button
-            onClick={exportJSON}
-            className="rounded-2xl px-3 py-2 border border-fuchsia-200 bg-white flex items-center gap-2"
-          >
-            <DownloadIcon className="w-4 h-4" />
-            Export
-          </button>
-          <button
-            onClick={resetToDefaults}
-            className="rounded-2xl px-3 py-2 border bg-white hover:bg-rose-50"
-          >
-            Reset
-          </button>
-          <button
-            onClick={clearSaved}
-            className="rounded-2xl px-3 py-2 border bg-white hover:bg-amber-50"
-          >
-            Clear Saved
-          </button>
-          <button
-            onClick={restoreDefaultCriteria}
-            className="rounded-2xl px-3 py-2 border bg-white hover:bg-sky-50"
-          >
-            Restore Default Criteria
-          </button>
-        </div>
-      </header>
+);
 
       {/* Blank canvas banner */}
       {schools.length === 0 && criteria.length === 0 && (
