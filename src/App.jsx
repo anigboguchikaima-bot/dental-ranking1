@@ -5,7 +5,7 @@ import {
   Star,
   BarChart2,
   Sparkles,
-  Palette,f
+  Palette,
   Download as DownloadIcon,
   Upload as UploadIcon,
 } from "lucide-react";
