@@ -5,7 +5,7 @@ import {
   Star,
   BarChart2,
   Sparkles,
-  Palette,
+  Palette,f
   Download as DownloadIcon,
   Upload as UploadIcon,
 } from "lucide-react";
@@ -134,66 +134,155 @@ function normalizeCriterion(rows, key, higherIsBetter) {
 
 /* -------------------- LANDING -------------------- */
 
+import { supabase } from "./supabaseClient"; // ← add this at the top of the file where needed
+
 function EduAlignLanding({ onGuest, onSignIn }) {
-  const [leaving, setLeaving] = React.useState(false);
+  const [mode, setMode] = React.useState("signin"); // 'signin' | 'signup'
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState("");
+
+  async function handleSignIn(e) {
+    e?.preventDefault?.();
+    setError("");
+    setLoading(true);
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    setLoading(false);
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    // success → tell parent
+    if (data?.session?.user) {
+      onSignIn?.({ user: { id: data.session.user.id, email: data.session.user.email } });
+    } else if (data?.user) {
+      onSignIn?.({ user: { id: data.user.id, email: data.user.email } });
+    }
+  }
+
+  async function handleSignUp(e) {
+    e?.preventDefault?.();
+    setError("");
+    setLoading(true);
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+    setLoading(false);
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    // depending on your Supabase settings you may need email confirm.
+    // We can still call onSignIn so user gets into the app.
+    if (data?.user) {
+      onSignIn?.({ user: { id: data.user.id, email: data.user.email } });
+    }
+  }
 
   return (
     <div
       className={`min-h-screen w-full flex items-center justify-center p-6
         bg-[radial-gradient(1200px_600px_at_0%_0%,#fff0,rgba(255,0,122,0.12)),radial-gradient(900px_600px_at_100%_0%,#fff0,rgba(0,255,150,0.12))]
-        transition-all duration-300
-        ${leaving ? "opacity-0 blur-[1px] translate-y-2" : ""}`}
+        transition-all duration-300`}
     >
-      <div className="w-full max-w-3xl rounded-3xl border border-white/20 bg-white/20 backdrop-blur-xl shadow-2xl p-8 md:p-12 text-center space-y-8">
-        <div className="text-center space-y-3">
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight">
+      <div className="w-full max-w-md rounded-3xl border border-white/20 bg-white/20 backdrop-blur-xl shadow-2xl p-6 md:p-8 space-y-6">
+        {/* title */}
+        <div className="text-center space-y-2">
+          <h1 className="text-4xl font-extrabold tracking-tight">
             <span className="bg-clip-text text-transparent bg-[conic-gradient(from_0deg_at_50%_50%,#ef4444,#f59e0b,#84cc16,#06b6d4,#8b5cf6,#ef4444)]">
               EduAlign
             </span>
           </h1>
-          <p className="text-base md:text-lg text-white/90">
-            <span className="bg-clip-text text-transparent bg-[linear-gradient(90deg,#f43f5e,#f59e0b,#22c55e,#06b6d4,#8b5cf6)]">
-              Where Data Meets Destiny
-            </span>
-          </p>
-          <p className="text-sm text-white/70 max-w-md mx-auto">
-            Sign in to save your rankings, or browse as a guest (guests can’t save).
-          </p>
+          <p className="text-sm text-white/80">Where Data Meets Destiny</p>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+        {/* tabs */}
+        <div className="flex rounded-2xl bg-white/20 p-1 gap-1">
           <button
-            onClick={() => {
-              setLeaving(true);
-              onSignIn && onSignIn();
-            }}
-            className="w-full sm:w-auto rounded-2xl px-5 py-3 text-white font-semibold shadow-lg
-                       bg-[linear-gradient(90deg,#f97316,#ec4899,#6366f1)]
-                       hover:opacity-90 transition"
+            onClick={() => { setMode("signin"); setError(""); }}
+            className={`flex-1 py-2 rounded-xl text-sm font-medium ${
+              mode === "signin" ? "bg-white/90 text-slate-900" : "text-white/80"
+            }`}
           >
             Sign in
           </button>
-
           <button
-            onClick={() => {
-              setLeaving(true);
-              onGuest && onGuest();
-            }}
-            className="w-full sm:w-auto rounded-2xl px-5 py-3 font-semibold shadow-lg
-                       bg-white/80 text-slate-900 hover:bg-white transition
-                       border border-white/40"
+            onClick={() => { setMode("signup"); setError(""); }}
+            className={`flex-1 py-2 rounded-xl text-sm font-medium ${
+              mode === "signup" ? "bg-white/90 text-slate-900" : "text-white/80"
+            }`}
           >
-            Continue as Guest
+            Create account
+          </button>
+          <button
+            onClick={() => onGuest?.()}
+            className="flex-1 py-2 rounded-xl text-sm font-medium text-white/90 hover:bg-white/10"
+          >
+            Guest
           </button>
         </div>
 
-        <p className="text-xs text-white/60">
-          Guests can explore but <span className="font-semibold text-white">can’t save</span>.
+        {/* form */}
+        <form
+          onSubmit={mode === "signin" ? handleSignIn : handleSignUp}
+          className="space-y-4"
+        >
+          <div>
+            <label className="text-xs text-white/80">Email</label>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 w-full rounded-xl px-3 py-2 bg-white/80 outline-none focus:ring-2 focus:ring-pink-200"
+              placeholder="you@example.com"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-white/80">Password</label>
+            <input
+              type="password"
+              required
+              minLength={6}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mt-1 w-full rounded-xl px-3 py-2 bg-white/80 outline-none focus:ring-2 focus:ring-pink-200"
+              placeholder="••••••••"
+            />
+          </div>
+          {error && (
+            <div className="text-xs text-rose-100 bg-rose-500/30 border border-rose-200/60 rounded-xl px-3 py-2">
+              {error}
+            </div>
+          )}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-2xl py-2.5 text-sm font-semibold text-white bg-[linear-gradient(90deg,#f97316,#ec4899,#6366f1)] hover:opacity-90 disabled:opacity-50"
+          >
+            {loading
+              ? mode === "signin"
+                ? "Signing in…"
+                : "Creating account…"
+              : mode === "signin"
+              ? "Sign in"
+              : "Create account"}
+          </button>
+        </form>
+
+        <p className="text-[10px] text-white/60 text-center">
+          Or continue as guest – data will be saved to this browser only.
         </p>
       </div>
     </div>
   );
 }
+
 
 /* -------------------- MAIN APP -------------------- */
 
@@ -204,11 +293,12 @@ export default function DentalRankingApp() {
     return localStorage.getItem("edualign_guest") === "1";
   });
 
-  function onSignedIn(fakeSessionObject = { user: { id: "demo" } }) {
-    setSession(fakeSessionObject);
-    localStorage.removeItem("edualign_guest");
-    setGuestMode(false);
-  }
+function onSignedIn(sessionObj) {
+  setSession(sessionObj);
+  localStorage.removeItem("edualign_guest");
+  setGuestMode(false);
+}
+
 
   function continueAsGuest() {
     localStorage.setItem("edualign_guest", "1");
@@ -216,9 +306,16 @@ export default function DentalRankingApp() {
     setSession(null);
   }
 
-  function signOutEverywhere() {
+async function signOutEverywhere() {
+    // if you imported supabase, sign out there too
+    try {
+      await supabase.auth.signOut();
+    } catch (e) {
+      console.warn("supabase signout failed (ok in guest):", e);
+    }
     setSession(null);
     localStorage.removeItem("edualign_guest");
+    setGuestMode(false);
   }
 
   /* 2. CORE UI STATE (all together, in one block) */
