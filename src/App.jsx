@@ -93,50 +93,61 @@ function normalizeCriterion(rows, key, higherIsBetter) {
 function EduAlignLanding({ onGuest, onSignIn }) {
   const [leaving, setLeaving] = React.useState(false);
 
-
   return (
-    <div className={`min-h-screen w-full flex items-center justify-center p-6
-              bg-[radial-gradient(1200px_600px_at_0%_0%,#fff0,rgba(255,0,122,0.12)),
-                  radial-gradient(900px_600px_at_100%_0%,#fff0,rgba(0,255,150,0.12))]
-              transition-all duration-300
-              ${leaving ? 'opacity-0 blur-[1px] translate-y-2' : ''}`}>
-      <div className="w-full max-w-3xl rounded-3xl border border-white/20 bg-white/20 backdrop-blur-xl shadow-2xl p-8 md:p-12">
+    <div
+      className={`min-h-screen w-full flex items-center justify-center p-6
+        bg-[radial-gradient(1200px_600px_at_0%_0%,#fff0,rgba(255,0,122,0.12)),
+            radial-gradient(900px_600px_at_100%_0%,#fff0,rgba(0,255,150,0.12))]
+        transition-all duration-300
+        ${leaving ? "opacity-0 blur-[1px] translate-y-2" : ""}`}
+    >
+      <div className="w-full max-w-3xl rounded-3xl border border-white/20 bg-white/20 backdrop-blur-xl shadow-2xl p-8 md:p-12 text-center space-y-8">
         {/* Title */}
-        <div className="text-center">
+        <div className="text-center space-y-3">
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight">
-            <span className="bg-clip-text text-transparent bg-[conic-gradient(from_0deg_at_50%_50%,#e4444a,#f59e0b,#84cc16,#06b6d4,#8b5cf6,#e4444a)]">
+            <span className="bg-clip-text text-transparent bg-[conic-gradient(from_0deg_at_50%_50%,#ef4444,#f59e0b,#84cc16,#06b6d4,#8b5cf6,#ef4444)]">
               EduAlign
             </span>
           </h1>
-          <p className="mt-3 text-base md:text-lg text-white/90 drop-shadow">
-            Where Data Meets Destiny
+          <p className="text-base md:text-lg text-white/90">
+            <span className="bg-clip-text text-transparent bg-[linear-gradient(90deg,#f43f5e,#f59e0b,#22c55e,#06b6d4,#8b5cf6)]">
+              Where Data Meets Destiny
+            </span>
+          </p>
+          <p className="text-sm text-white/70 max-w-md mx-auto">
+            Sign in to save your rankings, or browse as a guest (guests can’t save).
           </p>
         </div>
 
-        {/* CTA buttons */}
-        <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
+        {/* Buttons */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <button
-            onClick={onSignIn}
-            className="w-full sm:w-auto rounded-xl px-5 py-3 text-white font-semibold shadow-lg
-                       bg-[linear-gradient(90deg,#f43f5e,#f59e0b,#22c55e,#06b6d4,#8b5cf6)]
+            onClick={() => {
+              setLeaving(true);
+              onSignIn && onSignIn();
+            }}
+            className="w-full sm:w-auto rounded-2xl px-5 py-3 text-white font-semibold shadow-lg
+                       bg-[linear-gradient(90deg,#f97316,#ec4899,#6366f1)]
                        hover:opacity-90 transition"
           >
             Sign in
           </button>
 
           <button
-  onClick={() => { setLeaving(true); setTimeout(onGuest, 280); }}
-  className="w-full sm:w-auto rounded-xl px-5 py-3 font-semibold shadow-lg
-             bg-white/80 text-slate-800 hover:bg-white transition border border-white/60"
->
-  Continue as Guest
-</button>
-
+            onClick={() => {
+              setLeaving(true);
+              onGuest && onGuest();
+            }}
+            className="w-full sm:w-auto rounded-2xl px-5 py-3 font-semibold shadow-lg
+                       bg-white/80 text-slate-900 hover:bg-white transition
+                       border border-white/40"
+          >
+            Continue as Guest
+          </button>
         </div>
 
-        {/* Footnote */}
-        <p className="mt-6 text-center text-xs text-white/80">
-          Guests can explore but <span className="font-semibold">can’t save</span>. Create an account to keep your rankings.
+        <p className="text-xs text-white/60">
+          Guests can explore but <span className="font-semibold text-white">can’t save</span>.
         </p>
       </div>
     </div>
