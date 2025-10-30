@@ -188,7 +188,7 @@ function EduAlignLanding({ onGuest, onSignIn }) {
     >
       <div className="w-full max-w-md rounded-3xl border border-white/20 bg-white/20 backdrop-blur-xl shadow-2xl p-6 md:p-8 space-y-6">
         {/* title */}
-        <div className="text-center space-y-3">
+        <div className="text-center space-y-4">
   <h1 className="text-4xl font-extrabold tracking-tight rainbow-text">
     EduAlign
   </h1>
@@ -197,41 +197,29 @@ function EduAlignLanding({ onGuest, onSignIn }) {
     Where Data Meets Destiny
   </p>
 
-  {/* toggle */}
-  <button
-    type="button"
-    onClick={() => setShowHelp((p) => !p)}
-    className="inline-flex items-center gap-1 text-xs px-3 py-1 rounded-full bg-white/40 text-black/80 hover:bg-white/60 transition"
-  >
-    {showHelp ? "Hide how it works" : "What is this?"}
-    <span className={`transition-transform ${showHelp ? "rotate-180" : ""}`}>
-      ▾
-    </span>
-  </button>
+  {/* Explanation */}
+  <div className="mt-3 text-left bg-white/40 backdrop-blur-md rounded-2xl p-4 text-sm text-black/80 border border-white/30 mx-auto max-w-sm space-y-2 shadow-inner">
+    <p className="leading-relaxed">
+      <strong>EduAlign</strong> helps you make smarter, personalized school decisions.
+      It turns the data you care about — location, cost, diversity, weather, and more —
+      into a ranked list built around your unique priorities.
+    </p>
 
-  {/* collapsible */}
-  {showHelp && (
-    <div className="mt-2 text-left bg-white/40 backdrop-blur-md rounded-2xl p-4 text-sm text-black/80 border border-white/30 mx-auto max-w-sm space-y-2 shadow-inner">
-      <p className="leading-relaxed">
-        <strong>EduAlign</strong> helps you compare dental / med / grad programs
-        using the factors that matter to **you** — things like city vibe,
-        diversity, cost, weather, and perks.
-      </p>
-      <div>
-        <h3 className="text-xs font-semibold rainbow-text mb-1">
-          How it works
-        </h3>
-        <ol className="list-decimal list-inside space-y-1 text-[0.7rem] md:text-xs">
-          <li>Pick the schools you care about.</li>
-          <li>Score them on your criteria (you can even add new criteria).</li>
-          <li>EduAlign builds a ranked list in real time.</li>
-        </ol>
-      </div>
-      <p className="text-[0.65rem] text-black/60">
-        Sign in to save across devices, or use guest mode to just play around.
-      </p>
+    <div>
+      <h3 className="text-sm font-semibold rainbow-text mb-1 text-center">
+        How It Works
+      </h3>
+      <ol className="list-decimal list-inside space-y-1">
+        <li>Pick the schools you’re interested in.</li>
+        <li>Rate each one based on the factors that matter to you.</li>
+        <li>Watch EduAlign create a living bar chart that updates in real time.</li>
+      </ol>
     </div>
-  )}
+
+    <p className="text-xs text-black/70 italic text-center pt-1">
+      Sign in or continue as guest to start aligning your data with your destiny.
+    </p>
+  </div>
 </div>
 
 
