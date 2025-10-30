@@ -20,6 +20,7 @@ import {
 } from "recharts";
 import ProfileBar from "./ProfileBar";
 import { getUser, ensureUserRanking, loadData, saveData } from "./cloud";
+import { supabase } from "./supabaseClient"; // ← must be up here
 
 /* -------------------- CONSTANTS / HELPERS (OUTSIDE COMPONENT) -------------------- */
 
@@ -67,10 +68,10 @@ function safeKey(s) {
   );
 }
 
-// “global” storage keys
+// storage
 const STORAGE_KEY = "dental-ranking-data-v1";
 
-// this is your master list of criteria — we need it **before** the component
+// master criteria
 const ALL_CRITERIA = [
   { key: "cityBlackPct", label: "% Black in City", higherIsBetter: true, tip: "" },
   { key: "classBlackPct", label: "% Black in Class", higherIsBetter: true, tip: "" },
@@ -84,7 +85,6 @@ const ALL_CRITERIA = [
   { key: "specialty", label: "Specialty Placements", higherIsBetter: true, tip: "" },
 ];
 
-// this is the “starter” criteria set you called CRITERIA_DEFAULT
 const CRITERIA_DEFAULT = [
   { key: "cityBlackPct", label: "% Black in City", higherIsBetter: true, tip: "" },
   { key: "weatherWarmth", label: "Weather (Warmth)", higherIsBetter: true, tip: "" },
@@ -97,7 +97,6 @@ const CRITERIA_DEFAULT = [
   { key: "specialty", label: "Specialty Placements", higherIsBetter: true, tip: "" },
 ];
 
-// default weights you already had
 const defaultWeights = {
   cityBlackPct: 25,
   weatherWarmth: 12,
@@ -110,7 +109,7 @@ const defaultWeights = {
   cityLike: 15,
 };
 
-// normalization helpers (same as yours)
+// normalization
 function minMax(values) {
   const nums = values.filter((v) => typeof v === "number" && !Number.isNaN(v));
   if (nums.length === 0) return { scale: () => 50 };
@@ -119,9 +118,7 @@ function minMax(values) {
   if (mn === mx) return { scale: () => 50 };
   return {
     scale: (v) =>
-      v == null || Number.isNaN(Number(v))
-        ? 50
-        : ((Number(v) - mn) / (mx - mn)) * 100,
+      v == null || Number.isNaN(Number(v)) ? 50 : ((Number(v) - mn) / (mx - mn)) * 100,
   };
 }
 function normalizeCriterion(rows, key, higherIsBetter) {
@@ -134,10 +131,8 @@ function normalizeCriterion(rows, key, higherIsBetter) {
 
 /* -------------------- LANDING -------------------- */
 
-import { supabase } from "./supabaseClient"; // ← add this at the top of the file where needed
-
 function EduAlignLanding({ onGuest, onSignIn }) {
-  const [mode, setMode] = React.useState("signin"); // 'signin' | 'signup'
+  const [mode, setMode] = React.useState("signin");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [loading, setLoading] = React.useState(false);
@@ -156,9 +151,10 @@ function EduAlignLanding({ onGuest, onSignIn }) {
       setError(error.message);
       return;
     }
-    // success → tell parent
     if (data?.session?.user) {
-      onSignIn?.({ user: { id: data.session.user.id, email: data.session.user.email } });
+      onSignIn?.({
+        user: { id: data.session.user.id, email: data.session.user.email },
+      });
     } else if (data?.user) {
       onSignIn?.({ user: { id: data.user.id, email: data.user.email } });
     }
@@ -177,8 +173,6 @@ function EduAlignLanding({ onGuest, onSignIn }) {
       setError(error.message);
       return;
     }
-    // depending on your Supabase settings you may need email confirm.
-    // We can still call onSignIn so user gets into the app.
     if (data?.user) {
       onSignIn?.({ user: { id: data.user.id, email: data.user.email } });
     }
@@ -191,19 +185,21 @@ function EduAlignLanding({ onGuest, onSignIn }) {
         transition-all duration-300`}
     >
       <div className="w-full max-w-md rounded-3xl border border-white/20 bg-white/20 backdrop-blur-xl shadow-2xl p-6 md:p-8 space-y-6">
-      {/* title */}
-      <div className="text-center space-y-2">
-        <h1 className="text-4xl font-extrabold tracking-tight rainbow-text">
-          EduAlign
-        </h1>
-        <p className="text-sm rainbow-text">Where Data Meets Destiny</p>
-      </div>
-
+        {/* title */}
+        <div className="text-center space-y-2">
+          <h1 className="text-4xl font-extrabold tracking-tight rainbow-text">
+            EduAlign
+          </h1>
+          <p className="text-sm rainbow-text">Where Data Meets Destiny</p>
+        </div>
 
         {/* tabs */}
         <div className="flex rounded-2xl bg-white/20 p-1 gap-1">
           <button
-            onClick={() => { setMode("signin"); setError(""); }}
+            onClick={() => {
+              setMode("signin");
+              setError("");
+            }}
             className={`flex-1 py-2 rounded-xl text-sm font-medium ${
               mode === "signin" ? "bg-white/90 text-slate-900" : "text-white/80"
             }`}
@@ -211,7 +207,10 @@ function EduAlignLanding({ onGuest, onSignIn }) {
             Sign in
           </button>
           <button
-            onClick={() => { setMode("signup"); setError(""); }}
+            onClick={() => {
+              setMode("signup");
+              setError("");
+            }}
             className={`flex-1 py-2 rounded-xl text-sm font-medium ${
               mode === "signup" ? "bg-white/90 text-slate-900" : "text-white/80"
             }`}
@@ -282,22 +281,20 @@ function EduAlignLanding({ onGuest, onSignIn }) {
   );
 }
 
-
 /* -------------------- MAIN APP -------------------- */
 
 export default function DentalRankingApp() {
-  /* 1. AUTH GATE STATE (must be first) */
+  // 1. auth gate
   const [session, setSession] = useState(null);
   const [guestMode, setGuestMode] = useState(() => {
     return localStorage.getItem("edualign_guest") === "1";
   });
 
-function onSignedIn(sessionObj) {
-  setSession(sessionObj);
-  localStorage.removeItem("edualign_guest");
-  setGuestMode(false);
-}
-
+  function onSignedIn(sessionObj) {
+    setSession(sessionObj);
+    localStorage.removeItem("edualign_guest");
+    setGuestMode(false);
+  }
 
   function continueAsGuest() {
     localStorage.setItem("edualign_guest", "1");
@@ -305,8 +302,7 @@ function onSignedIn(sessionObj) {
     setSession(null);
   }
 
-async function signOutEverywhere() {
-    // if you imported supabase, sign out there too
+  async function signOutEverywhere() {
     try {
       await supabase.auth.signOut();
     } catch (e) {
@@ -317,14 +313,13 @@ async function signOutEverywhere() {
     setGuestMode(false);
   }
 
-  /* 2. CORE UI STATE (all together, in one block) */
-  const [schools, setSchools] = useState([]); // loaded later
+  // 2. core UI state
+  const [schools, setSchools] = useState([]);
   const [weights, setWeights] = useState({});
   const [rainbowMode, setRainbowMode] = useState(true);
 
-  // selection, criteria, modals
   const [selectedIds, setSelectedIds] = useState(new Set());
-  const [criteria, setCriteria] = useState(ALL_CRITERIA); // start with all of them
+  const [criteria, setCriteria] = useState(ALL_CRITERIA);
   const [enabledCriteriaKeys, setEnabledCriteriaKeys] = useState([]);
   const [activeTab, setActiveTab] = useState("data");
   const [addOpen, setAddOpen] = useState(false);
@@ -342,7 +337,7 @@ async function signOutEverywhere() {
   const [recordId, setRecordId] = useState(null);
   const [saving, setSaving] = useState("idle");
 
-  /* 3. EFFECT: load from cloud or local */
+  // 3. load
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -359,20 +354,25 @@ async function signOutEverywhere() {
         if (!mounted) return;
         if (cloud) {
           if (Array.isArray(cloud.schools)) setSchools(cloud.schools);
-          if (cloud.weights && typeof cloud.weights === "object") setWeights(cloud.weights);
-          if (Array.isArray(cloud.enabledCriteriaKeys)) setEnabledCriteriaKeys(cloud.enabledCriteriaKeys);
-          if (typeof cloud.rainbowMode === "boolean") setRainbowMode(cloud.rainbowMode);
+          if (cloud.weights && typeof cloud.weights === "object")
+            setWeights(cloud.weights);
+          if (Array.isArray(cloud.enabledCriteriaKeys))
+            setEnabledCriteriaKeys(cloud.enabledCriteriaKeys);
+          if (typeof cloud.rainbowMode === "boolean")
+            setRainbowMode(cloud.rainbowMode);
         }
       } else {
-        // guest → local
         try {
           const raw = localStorage.getItem(STORAGE_KEY);
           if (raw) {
             const parsed = JSON.parse(raw);
             if (Array.isArray(parsed.schools)) setSchools(parsed.schools);
-            if (parsed.weights && typeof parsed.weights === "object") setWeights(parsed.weights);
-            if (Array.isArray(parsed.enabledCriteriaKeys)) setEnabledCriteriaKeys(parsed.enabledCriteriaKeys);
-            if (typeof parsed.rainbowMode === "boolean") setRainbowMode(parsed.rainbowMode);
+            if (parsed.weights && typeof parsed.weights === "object")
+              setWeights(parsed.weights);
+            if (Array.isArray(parsed.enabledCriteriaKeys))
+              setEnabledCriteriaKeys(parsed.enabledCriteriaKeys);
+            if (typeof parsed.rainbowMode === "boolean")
+              setRainbowMode(parsed.rainbowMode);
           }
         } catch (e) {
           console.warn("Local load failed", e);
@@ -384,11 +384,10 @@ async function signOutEverywhere() {
     };
   }, []);
 
-  /* 4. EFFECT: autosave */
+  // 4. autosave
   useEffect(() => {
     const payload = { schools, weights, enabledCriteriaKeys, rainbowMode };
 
-    // always save guest copy
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     } catch {}
@@ -410,7 +409,7 @@ async function signOutEverywhere() {
     return () => clearTimeout(t);
   }, [user, recordId, schools, weights, enabledCriteriaKeys, rainbowMode]);
 
-  /* 5. DERIVED: active criteria + total weight + rows */
+  // 5. derived
   const ACTIVE = useMemo(
     () => ALL_CRITERIA.filter((c) => enabledCriteriaKeys.includes(c.key)),
     [enabledCriteriaKeys]
@@ -449,7 +448,7 @@ async function signOutEverywhere() {
     return rows.map((r, i) => ({ ...r, rank: i + 1 }));
   }, [schools, weights, ACTIVE, totalWeight]);
 
-  /* 6. TABLE / MODAL HELPERS (same as yours) */
+  // 6. helpers
   function removeCriterion(key) {
     setCriteria((prev) => prev.filter((c) => c.key !== key));
     setWeights((w) => {
@@ -521,7 +520,6 @@ async function signOutEverywhere() {
   }
   function resetToDefaults() {
     if (!confirm("Reset to initial data?")) return;
-    // you had a bigger initial list; keep that if you want
     setSchools([]);
     setWeights({ ...defaultWeights });
     setCriteria(CRITERIA_DEFAULT);
@@ -582,107 +580,107 @@ async function signOutEverywhere() {
   const bgRainbow =
     "bg-[radial-gradient(1200px_600px_at_0%_0%,#fff0,rgba(255,0,122,0.12)),radial-gradient(900px_600px_at_100%_0%,#fff0,rgba(0,200,255,0.12)),radial-gradient(900px_600px_at_100%_100%,#fff0,rgba(0,255,150,0.12)),radial-gradient(900px_600px_at_0%_100%,#fff0,rgba(255,170,0,0.12))]";
 
-  /* 7. **AUTH GATE** — this must stay AFTER the hooks */
+  // 7. auth gate
   if (!session && !guestMode) {
     return (
       <EduAlignLanding
         onGuest={continueAsGuest}
-        onSignIn={() => onSignedIn({ user: { id: "demo" } })}
+        onSignIn={onSignedIn}
       />
     );
   }
 
-  /* 8. MAIN RENDER (your layout) */
- return (
-  <div
-    className={`min-h-screen p-4 md:p-8 space-y-6 ${
-      rainbowMode
-        ? bgRainbow
-        : "bg-gradient-to-b from-rose-50 via-sky-50 to-violet-50"
-    }`}
-  >
-    {/* Header */}
-    <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-      <div>
-        <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight flex items-center gap-2">
-          <span className="bg-clip-text text-transparent bg-[conic-gradient(from_0deg_at_50%_50%,#ef4444,#f59e0b,#84cc16,#06b6d4,#8b5cf6,#ef4444)]">
-            EduAlign
-          </span>
-          <Sparkles className="w-6 h-6 md:w-7 md:h-7 text-fuchsia-500" />
-        </h1>
+  // 8. MAIN RENDER (everything in one return)
+  return (
+    <div
+      className={`min-h-screen p-4 md:p-8 space-y-6 ${
+        rainbowMode
+          ? bgRainbow
+          : "bg-gradient-to-b from-rose-50 via-sky-50 to-violet-50"
+      }`}
+    >
+      {/* Header */}
+      <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight flex items-center gap-2">
+            <span className="bg-clip-text text-transparent bg-[conic-gradient(from_0deg_at_50%_50%,#ef4444,#f59e0b,#84cc16,#06b6d4,#8b5cf6,#ef4444)]">
+              EduAlign
+            </span>
+            <Sparkles className="w-6 h-6 md:w-7 md:h-7 text-fuchsia-500" />
+          </h1>
+          <p className="mt-1 text-sm md:text-base text-white/90 drop-shadow-[0_1px_1px_rgb(0_0_0_/_0.25)]">
+            <span className="bg-clip-text text-transparent bg-[linear-gradient(90deg,#f43f5e,#f59e0b,#22c55e,#06b6d4,#8b5cf6)]">
+              Where Data Meets Destiny
+            </span>
+          </p>
+        </div>
 
-        {/* move this INSIDE the left header block */}
-        <p className="mt-1 text-sm md:text-base text-white/90 drop-shadow-[0_1px_1px_rgb(0_0_0_/_0.25)]">
-          <span className="bg-clip-text text-transparent bg-[linear-gradient(90deg,#f43f5e,#f59e0b,#22c55e,#06b6d4,#8b5cf6)]">
-            Where Data Meets Destiny
-          </span>
-        </p>
-      </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={signOutEverywhere}
+            className="rounded-2xl px-3 py-2 border bg-white hover:bg-rose-50 text-sm font-semibold"
+          >
+            Log out
+          </button>
 
-      {/* right side header controls */}
-      <div className="flex items-center gap-2 flex-wrap">
-        {/* NEW: logout button */}
-        <button
-          onClick={signOutEverywhere}
-          className="rounded-2xl px-3 py-2 border bg-white hover:bg-rose-50 text-sm font-semibold"
-        >
-          Log out
-        </button>
+          <label className="flex items-center gap-2 px-3 py-2 rounded-2xl border bg-white/70 cursor-pointer select-none">
+            <Palette className="w-4 h-4" />
+            <span className="text-sm">Rainbow mode</span>
+            <input
+              type="checkbox"
+              className="h-4 w-4"
+              checked={rainbowMode}
+              onChange={(e) => setRainbowMode(e.target.checked)}
+            />
+          </label>
 
-        <label className="flex items-center gap-2 px-3 py-2 rounded-2xl border bg-white/70 cursor-pointer select-none">
-          <Palette className="w-4 h-4" />
-          <span className="text-sm">Rainbow mode</span>
-          <input
-            type="checkbox"
-            className="h-4 w-4"
-            checked={rainbowMode}
-            onChange={(e) => setRainbowMode(e.target.checked)}
-          />
-        </label>
+          <button
+            onClick={addSchool}
+            className="rounded-2xl px-3 py-2 text-white bg-[linear-gradient(90deg,#ff80b5,#9089fc)] hover:opacity-90 flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Add School
+          </button>
 
-        <button
-          onClick={addSchool}
-          className="rounded-2xl px-3 py-2 text-white bg-[linear-gradient(90deg,#ff80b5,#9089fc)] hover:opacity-90 flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" />
-          Add School
-        </button>
+          <button
+            onClick={deleteSelected}
+            disabled={selectedIds.size === 0}
+            className={`rounded-2xl px-3 py-2 border ${
+              selectedIds.size === 0
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-rose-50"
+            }`}
+          >
+            Delete Selected
+          </button>
 
-        <button
-          onClick={deleteSelected}
-          disabled={selectedIds.size === 0}
-          className={`rounded-2xl px-3 py-2 border ${
-            selectedIds.size === 0
-              ? "opacity-50 cursor-not-allowed"
-              : "hover:bg-rose-50"
-          }`}
-        >
-          Delete Selected
-        </button>
+          <label className="inline-flex items-center gap-2 cursor-pointer border rounded-2xl px-3 py-2 bg-white/80">
+            <UploadIcon className="w-4 h-4" />
+            <span>Import</span>
+            <input
+              type="file"
+              accept="application/json"
+              onChange={importJSON}
+              className="hidden"
+            />
+          </label>
 
-        <label className="inline-flex items-center gap-2 cursor-pointer border rounded-2xl px-3 py-2 bg-white/80">
-          <UploadIcon className="w-4 h-4" />
-          <span>Import</span>
-          <input
-            type="file"
-            accept="application/json"
-            onChange={importJSON}
-            className="hidden"
-          />
-        </label>
+          <button
+            onClick={exportJSON}
+            className="rounded-2xl px-3 py-2 border border-fuchsia-200 bg-white flex items-center gap-2"
+          >
+            <DownloadIcon className="w-4 h-4" />
+            Export
+          </button>
 
-        <button
-          onClick={exportJSON}
-          className="rounded-2xl px-3 py-2 border border-fuchsia-200 bg-white flex items-center gap-2"
-        >
-          <DownloadIcon className="w-4 h-4" />
-          Export
-        </button>
-      </div>
-    </header>
-    {/* ...the rest of your page... */}
-  </div>
-);
+          <button
+            onClick={restoreDefaultCriteria}
+            className="rounded-2xl px-3 py-2 border bg-white hover:bg-sky-50"
+          >
+            Restore Default Criteria
+          </button>
+        </div>
+      </header>
 
       {/* Blank canvas banner */}
       {schools.length === 0 && criteria.length === 0 && (
@@ -715,6 +713,7 @@ async function signOutEverywhere() {
         </div>
       )}
 
+      {/* main grid */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* weights panel */}
         <div className="xl:col-span-1 rounded-3xl shadow-sm border-2 border-rose-100 bg-white/90 backdrop-blur p-6 space-y-5">
@@ -876,8 +875,7 @@ async function signOutEverywhere() {
             ))}
           </div>
           <div className="text-xs text-slate-500 pt-2">
-            Tip: Total weight doesn’t need to equal 100 — we normalize
-            internally.
+            Tip: Total weight doesn’t need to equal 100 — we normalize internally.
           </div>
         </div>
 
@@ -1097,7 +1095,9 @@ async function signOutEverywhere() {
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
                 <div className="bg-white rounded-3xl w-full max-w-2xl p-4 shadow-lg">
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-lg font-semibold">Rate Aesthetics (0–10)</h3>
+                    <h3 className="text-lg font-semibold">
+                      Rate Aesthetics (0–10)
+                    </h3>
                     <button
                       className="text-sm px-2 py-1 rounded-xl hover:bg-slate-100"
                       onClick={() => setRaterOpen(false)}
@@ -1168,7 +1168,9 @@ async function signOutEverywhere() {
               We normalize each factor with min→max scaling to 0–100 and
               auto-invert lower-is-better ones (Price, Grad Requirements).
             </li>
-            <li>Composite score is a weighted average of those standardized scores.</li>
+            <li>
+              Composite score is a weighted average of those standardized scores.
+            </li>
             <li>
               Leave a field blank if you don’t know it — we treat it neutrally (~50
               after scaling).
@@ -1246,7 +1248,9 @@ function InternalChecks() {
     try {
       const rows = [{ price: 100 }, { price: 200 }];
       const inv = normalizeCriterion(rows, "price", false);
-      out.push(inv[0] > inv[1] ? "✅ lower price scores higher" : "❌ price invert");
+      out.push(
+        inv[0] > inv[1] ? "✅ lower price scores higher" : "❌ price invert"
+      );
     } catch (e) {
       out.push("❌ price invert threw");
     }
