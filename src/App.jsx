@@ -1,16 +1,43 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Plus, Trash2, Star, BarChart2, Sparkles, Palette, Download as DownloadIcon, Upload as UploadIcon } from "lucide-react";
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from "recharts";
+import {
+  Plus,
+  Trash2,
+  Star,
+  BarChart2,
+  Sparkles,
+  Palette,
+  Download as DownloadIcon,
+  Upload as UploadIcon,
+} from "lucide-react";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Cell,
+} from "recharts";
 import ProfileBar from "./ProfileBar";
 import { getUser, ensureUserRanking, loadData, saveData } from "./cloud";
 
-// Pastel palette for cute vibes (fallback when rainbow is off)
+/* -------------------- CONSTANTS / HELPERS (OUTSIDE COMPONENT) -------------------- */
+
+// pastel fallback
 const pastelColors = [
-  "#FDE68A", "#FBCFE8", "#BFDBFE", "#C7D2FE", "#A7F3D0",
-  "#FCA5A5", "#E9D5FF", "#99F6E4", "#FDE2E4", "#FFD6A5",
+  "#FDE68A",
+  "#FBCFE8",
+  "#BFDBFE",
+  "#C7D2FE",
+  "#A7F3D0",
+  "#FCA5A5",
+  "#E9D5FF",
+  "#99F6E4",
+  "#FDE2E4",
+  "#FFD6A5",
 ];
 
-// Rainbow helpers
+// rainbow helpers
 function rainbowColor(i, total, sat = 72, light = 60) {
   const hue = Math.round((360 * i) / Math.max(total, 1));
   return `hsl(${hue} ${sat}% ${light}%)`;
@@ -20,49 +47,57 @@ function rainbowAlpha(i, total, alpha = 0.15) {
   return `hsla(${hue}, 80%, 60%, ${alpha})`;
 }
 
-// Helpers
-const id = () => Math.random().toString(36).slice(2, 9);
-function shorten(str, n) { return str.length > n ? str.slice(0, n - 1) + "…" : str; }
-function parseNumberOrNull(v) { if (v === "" || v == null) return null; const n = Number(v); return Number.isFinite(n) ? n : null; }
+// small utils
+const makeId = () => Math.random().toString(36).slice(2, 9);
+function shorten(str, n) {
+  return str.length > n ? str.slice(0, n - 1) + "…" : str;
+}
+function parseNumberOrNull(v) {
+  if (v === "" || v == null) return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+}
 function safeKey(s) {
-  return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 32) || `k_${id()}`;
+  return (
+    String(s || "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "")
+      .slice(0, 32) || `k_${makeId()}`
+  );
 }
 
-// Persistence
-const STORAGE_KEY = "dentalRanking.v1";
-const STORAGE_VER = 3; // bump version to include add-criterion persistence
+// “global” storage keys
+const STORAGE_KEY = "dental-ranking-data-v1";
 
-// Data
-const initialSchools = [
-  { name: "Boston University Henry M. Goldman School of Dental Medicine", city: "Boston", state: "MA", deadline: "2025-12-16", cityBlackPct: 23, weatherWarmth: 55, price: 115000 },
-  { name: "Columbia University College of Dental Medicine", city: "New York", state: "NY", deadline: "2025-12-31", cityBlackPct: 24, weatherWarmth: 58, price: 120000 },
-  { name: "Meharry Medical College School of Dentistry", city: "Nashville", state: "TN", deadline: "2025-11-01", cityBlackPct: 27, weatherWarmth: 70, price: 90000 },
-  { name: "Rutgers School of Dental Medicine", city: "Newark", state: "NJ", deadline: "2026-01-30", cityBlackPct: 49, weatherWarmth: 58, price: 95000 },
-  { name: "Temple University (Maurice H. Kornberg) School of Dentistry", city: "Philadelphia", state: "PA", deadline: "2026-01-15", cityBlackPct: 44, weatherWarmth: 60, price: 98000 },
-  { name: "Tufts University School of Dental Medicine", city: "Boston", state: "MA", deadline: "2026-02-02", cityBlackPct: 23, weatherWarmth: 55, price: 110000 },
-  { name: "University of Alabama at Birmingham School of Dentistry", city: "Birmingham", state: "AL", deadline: "2025-10-31", cityBlackPct: 69, weatherWarmth: 78, price: 70000 },
-  { name: "University of Detroit Mercy School of Dentistry", city: "Detroit", state: "MI", deadline: "2025-12-31", cityBlackPct: 77, weatherWarmth: 50, price: 90000 },
-  { name: "University of Illinois Chicago College of Dentistry", city: "Chicago", state: "IL", deadline: "2025-12-01", cityBlackPct: 29, weatherWarmth: 55, price: 92000 },
-  { name: "University of Maryland School of Dentistry", city: "Baltimore", state: "MD", deadline: "2025-12-15", cityBlackPct: 62, weatherWarmth: 60, price: 99000 },
-  { name: "University of Pennsylvania School of Dental Medicine", city: "Philadelphia", state: "PA", deadline: "2025-12-01", cityBlackPct: 44, weatherWarmth: 60, price: 110000 },
-  { name: "Virginia Commonwealth University School of Dentistry", city: "Richmond", state: "VA", deadline: "", cityBlackPct: 47, weatherWarmth: 68, price: 95000 },
-  { name: "The Dental College of Georgia (Augusta University)", city: "Augusta", state: "GA", deadline: "", cityBlackPct: 57, weatherWarmth: 78, price: 45000 },
-  { name: "Texas A&M University College of Dentistry", city: "Dallas", state: "TX", deadline: "", cityBlackPct: 24, weatherWarmth: 80, price: 68000 },
-  { name: "UTHealth Houston School of Dentistry", city: "Houston", state: "TX", deadline: "", cityBlackPct: 23, weatherWarmth: 85, price: 68000 },
-].map((s) => ({ id: id(), ...s }));
-
-const CRITERIA_DEFAULT = [
-  { key: "cityBlackPct", label: "% Black in City", higherIsBetter: true, tip: "Share of Black residents in the metro/municipality." },
-  { key: "weatherWarmth", label: "Weather (Warmth)", higherIsBetter: true, tip: "Use avg high (°F) or your 0–100 warmth score." },
-  { key: "cityLike", label: "How Much I Like the City", higherIsBetter: true, tip: "Your personal rating for how much you like living in that city (0–10)." },
-  { key: "looks", label: "Aesthetic (Your Score)", higherIsBetter: true, tip: "Your personal vibe rating. We'll wait on you to fill these." },
-  { key: "price", label: "Price / Cost of Attendance", higherIsBetter: false, tip: "Total yearly COA or best estimate. Lower is better." },
-  { key: "timeline", label: "Breaks per Year", higherIsBetter: true, tip: "Number of academic breaks per year; more breaks = better." },
-  { key: "perks", label: "Perks", higherIsBetter: true, tip: "Housing, stipends, wellness, mentorship, etc. Use 0–10 or a count." },
-  { key: "gradReqs", label: "Grad Requirements Burden", higherIsBetter: false, tip: "Boards, case logs, competencies; higher burden = worse (use 0–10)." },
-  { key: "specialty", label: "Specialty Placements", higherIsBetter: true, tip: "Match rate or index for specialty placements (endo/OMS/peds, etc.)." },
+// this is your master list of criteria — we need it **before** the component
+const ALL_CRITERIA = [
+  { key: "cityBlackPct", label: "% Black in City", higherIsBetter: true, tip: "" },
+  { key: "classBlackPct", label: "% Black in Class", higherIsBetter: true, tip: "" },
+  { key: "weatherWarmth", label: "Weather (Warmth)", higherIsBetter: true, tip: "" },
+  { key: "cityLike", label: "How Much I Like the City", higherIsBetter: true, tip: "" },
+  { key: "looks", label: "Aesthetic (Your Score)", higherIsBetter: true, tip: "" },
+  { key: "price", label: "Price / Cost of Attendance", higherIsBetter: false, tip: "" },
+  { key: "timeline", label: "Breaks per Year", higherIsBetter: true, tip: "" },
+  { key: "perks", label: "Perks", higherIsBetter: true, tip: "" },
+  { key: "gradReqs", label: "Grad Requirements Burden", higherIsBetter: false, tip: "" },
+  { key: "specialty", label: "Specialty Placements", higherIsBetter: true, tip: "" },
 ];
 
+// this is the “starter” criteria set you called CRITERIA_DEFAULT
+const CRITERIA_DEFAULT = [
+  { key: "cityBlackPct", label: "% Black in City", higherIsBetter: true, tip: "" },
+  { key: "weatherWarmth", label: "Weather (Warmth)", higherIsBetter: true, tip: "" },
+  { key: "cityLike", label: "How Much I Like the City", higherIsBetter: true, tip: "" },
+  { key: "looks", label: "Aesthetic (Your Score)", higherIsBetter: true, tip: "" },
+  { key: "price", label: "Price / Cost of Attendance", higherIsBetter: false, tip: "" },
+  { key: "timeline", label: "Breaks per Year", higherIsBetter: true, tip: "" },
+  { key: "perks", label: "Perks", higherIsBetter: true, tip: "" },
+  { key: "gradReqs", label: "Grad Requirements Burden", higherIsBetter: false, tip: "" },
+  { key: "specialty", label: "Specialty Placements", higherIsBetter: true, tip: "" },
+];
+
+// default weights you already had
 const defaultWeights = {
   cityBlackPct: 25,
   weatherWarmth: 12,
@@ -75,13 +110,19 @@ const defaultWeights = {
   cityLike: 15,
 };
 
-// Normalization
+// normalization helpers (same as yours)
 function minMax(values) {
   const nums = values.filter((v) => typeof v === "number" && !Number.isNaN(v));
   if (nums.length === 0) return { scale: () => 50 };
-  const min = Math.min(...nums), max = Math.max(...nums);
-  if (min === max) return { scale: () => 50 };
-  return { scale: (v) => (v == null || Number.isNaN(Number(v)) ? 50 : ((Number(v) - min) / (max - min)) * 100) };
+  const mn = Math.min(...nums);
+  const mx = Math.max(...nums);
+  if (mn === mx) return { scale: () => 50 };
+  return {
+    scale: (v) =>
+      v == null || Number.isNaN(Number(v))
+        ? 50
+        : ((Number(v) - mn) / (mx - mn)) * 100,
+  };
 }
 function normalizeCriterion(rows, key, higherIsBetter) {
   const scaler = minMax(rows.map((r) => r[key]));
@@ -90,19 +131,20 @@ function normalizeCriterion(rows, key, higherIsBetter) {
     return higherIsBetter ? s : 100 - s;
   });
 }
+
+/* -------------------- LANDING -------------------- */
+
 function EduAlignLanding({ onGuest, onSignIn }) {
   const [leaving, setLeaving] = React.useState(false);
 
   return (
     <div
       className={`min-h-screen w-full flex items-center justify-center p-6
-        bg-[radial-gradient(1200px_600px_at_0%_0%,#fff0,rgba(255,0,122,0.12)),
-            radial-gradient(900px_600px_at_100%_0%,#fff0,rgba(0,255,150,0.12))]
+        bg-[radial-gradient(1200px_600px_at_0%_0%,#fff0,rgba(255,0,122,0.12)),radial-gradient(900px_600px_at_100%_0%,#fff0,rgba(0,255,150,0.12))]
         transition-all duration-300
         ${leaving ? "opacity-0 blur-[1px] translate-y-2" : ""}`}
     >
       <div className="w-full max-w-3xl rounded-3xl border border-white/20 bg-white/20 backdrop-blur-xl shadow-2xl p-8 md:p-12 text-center space-y-8">
-        {/* Title */}
         <div className="text-center space-y-3">
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight">
             <span className="bg-clip-text text-transparent bg-[conic-gradient(from_0deg_at_50%_50%,#ef4444,#f59e0b,#84cc16,#06b6d4,#8b5cf6,#ef4444)]">
@@ -119,7 +161,6 @@ function EduAlignLanding({ onGuest, onSignIn }) {
           </p>
         </div>
 
-        {/* Buttons */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <button
             onClick={() => {
@@ -154,386 +195,538 @@ function EduAlignLanding({ onGuest, onSignIn }) {
   );
 }
 
+/* -------------------- MAIN APP -------------------- */
+
 export default function DentalRankingApp() {
-  // --- Minimal "auth" gate: guest or signed-in user ---
-const [session, setSession] = useState(null); // wire to real auth later
-const [guestMode, setGuestMode] = useState(() => {
-  return localStorage.getItem("edualign_guest") === "1";
-});
+  /* 1. AUTH GATE STATE (must be first) */
+  const [session, setSession] = useState(null);
+  const [guestMode, setGuestMode] = useState(() => {
+    return localStorage.getItem("edualign_guest") === "1";
+  });
 
-function onSignedIn(fakeSessionObject = { user: { id: "demo" } }) {
-  // mock “login”: set a session object
-  setSession(fakeSessionObject);
-  // make sure we are NOT in guest mode anymore
-  localStorage.removeItem("edualign_guest");
-  setGuestMode(false);
-}
+  function onSignedIn(fakeSessionObject = { user: { id: "demo" } }) {
+    setSession(fakeSessionObject);
+    localStorage.removeItem("edualign_guest");
+    setGuestMode(false);
+  }
 
-function continueAsGuest() {
-  // mark as guest and clear any session
-  localStorage.setItem("edualign_guest", "1");
-  setGuestMode(true);
-  setSession(null);
-}
+  function continueAsGuest() {
+    localStorage.setItem("edualign_guest", "1");
+    setGuestMode(true);
+    setSession(null);
+  }
 
-function signOutEverywhere() {
-  // optional convenience sign-out
-  setSession(null);
-  localStorage.removeItem("edualign_guest");
-}
+  function signOutEverywhere() {
+    setSession(null);
+    localStorage.removeItem("edualign_guest");
+  }
 
+  /* 2. CORE UI STATE (all together, in one block) */
+  const [schools, setSchools] = useState([]); // loaded later
+  const [weights, setWeights] = useState({});
+  const [rainbowMode, setRainbowMode] = useState(true);
 
+  // selection, criteria, modals
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [criteria, setCriteria] = useState(ALL_CRITERIA); // start with all of them
+  const [enabledCriteriaKeys, setEnabledCriteriaKeys] = useState([]);
+  const [activeTab, setActiveTab] = useState("data");
+  const [addOpen, setAddOpen] = useState(false);
+  const [newCrit, setNewCrit] = useState({
+    label: "",
+    key: "",
+    higherIsBetter: true,
+    tip: "",
+  });
+  const [addError, setAddError] = useState("");
+  const [raterOpen, setRaterOpen] = useState(false);
 
-  // ---- Blank canvas state ----
-const [schools, setSchools] = useState([]);            // start empty
-const [weights, setWeights] = useState({});            // no default weights yet
-const [rainbowMode, setRainbowMode] = useState(true);  // rainbow toggle stays on
- // selection for table
-const [selectedIds, setSelectedIds] = useState(new Set());
-// criteria state (start with the built-in ones)
-const [criteria, setCriteria] = useState(ALL_CRITERIA);
+  // cloud
+  const [user, setUser] = useState(null);
+  const [recordId, setRecordId] = useState(null);
+  const [saving, setSaving] = useState("idle");
 
-// modal / add-criterion helpers
-const [newCrit, setNewCrit] = useState({
-  label: "",
-  key: "",
-  higherIsBetter: true,
-  tip: "",
-});
-
-const [addError, setAddError] = useState("");
-const [raterOpen, setRaterOpen] = useState(false);
-
- 
-
-
-  
-// All possible criteria (reuse your same keys later)
-const ALL_CRITERIA = [
-  { key: "cityBlackPct", label: "% Black in City", higherIsBetter: true, tip: "" },
-  { key: "classBlackPct", label: "% Black in Class", higherIsBetter: true, tip: "" },
-  { key: "weatherWarmth", label: "Weather (Warmth)", higherIsBetter: true, tip: "" },
-  { key: "cityLike", label: "How Much I Like the City", higherIsBetter: true, tip: "" },
-  { key: "looks", label: "Aesthetic (Your Score)", higherIsBetter: true, tip: "" },
-  { key: "price", label: "Price / Cost of Attendance", higherIsBetter: false, tip: "" },
-  { key: "timeline", label: "Breaks per Year", higherIsBetter: true, tip: "" },
-  { key: "perks", label: "Perks", higherIsBetter: true, tip: "" },
-  { key: "gradReqs", label: "Grad Requirements Burden", higherIsBetter: false, tip: "" },
-  { key: "specialty", label: "Specialty Placements", higherIsBetter: true, tip: "" },
-];
-
-
-// Which criteria are currently enabled (none by default)
-const [enabledCriteriaKeys, setEnabledCriteriaKeys] = useState([]);
-
-// Computed active criteria list used everywhere else
-const ACTIVE = useMemo(
-  () => ALL_CRITERIA.filter((c) => enabledCriteriaKeys.includes(c.key)),
-  [enabledCriteriaKeys]
-);
-
-// Keep other existing UI state if you need tabs/modals
-const [activeTab, setActiveTab] = useState('data');
-const [addOpen, setAddOpen] = useState(false);
-
-// ---- Cloud user + record ----
-const [user, setUser] = useState(null);
-const [recordId, setRecordId] = useState(null);
-const [saving, setSaving] = useState("idle"); // 'idle' | 'saving' | 'saved'
-
-// Fallback local storage key for guests
-const STORAGE_KEY = "dental-ranking-data-v1";
-
-// On mount: get user → ensure record → load cloud data (or local if guest)
-useEffect(() => {
-  let mounted = true;
-  (async () => {
-    const u = await getUser();
-    if (!mounted) return;
-    setUser(u);
-
-    if (u) {
-      // signed in → ensure one record and load it
-      const id = await ensureUserRanking(u.id);
+  /* 3. EFFECT: load from cloud or local */
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const u = await getUser();
       if (!mounted) return;
-      setRecordId(id);
+      setUser(u);
 
-      const cloud = await loadData(id);
-      if (!mounted) return;
-      if (cloud) {
-        if (Array.isArray(cloud.schools)) setSchools(cloud.schools);
-        if (cloud.weights && typeof cloud.weights === "object") setWeights(cloud.weights);
-        if (Array.isArray(cloud.enabledCriteriaKeys)) setEnabledCriteriaKeys(cloud.enabledCriteriaKeys);
-        if (typeof cloud.rainbowMode === "boolean") setRainbowMode(cloud.rainbowMode);
-      }
-    } else {
-      // guest → try local storage
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed.schools)) setSchools(parsed.schools);
-          if (parsed.weights && typeof parsed.weights === "object") setWeights(parsed.weights);
-          if (Array.isArray(parsed.enabledCriteriaKeys)) setEnabledCriteriaKeys(parsed.enabledCriteriaKeys);
-          if (typeof parsed.rainbowMode === "boolean") setRainbowMode(parsed.rainbowMode);
+      if (u) {
+        const id = await ensureUserRanking(u.id);
+        if (!mounted) return;
+        setRecordId(id);
+
+        const cloud = await loadData(id);
+        if (!mounted) return;
+        if (cloud) {
+          if (Array.isArray(cloud.schools)) setSchools(cloud.schools);
+          if (cloud.weights && typeof cloud.weights === "object") setWeights(cloud.weights);
+          if (Array.isArray(cloud.enabledCriteriaKeys)) setEnabledCriteriaKeys(cloud.enabledCriteriaKeys);
+          if (typeof cloud.rainbowMode === "boolean") setRainbowMode(cloud.rainbowMode);
         }
-      } catch (e) {
-        console.warn("Local load failed", e);
+      } else {
+        // guest → local
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed.schools)) setSchools(parsed.schools);
+            if (parsed.weights && typeof parsed.weights === "object") setWeights(parsed.weights);
+            if (Array.isArray(parsed.enabledCriteriaKeys)) setEnabledCriteriaKeys(parsed.enabledCriteriaKeys);
+            if (typeof parsed.rainbowMode === "boolean") setRainbowMode(parsed.rainbowMode);
+          }
+        } catch (e) {
+          console.warn("Local load failed", e);
+        }
       }
-    }
-  })();
-  return () => { mounted = false; };
-}, []);
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
-// Autosave whenever the data changes
-useEffect(() => {
-  const payload = { schools, weights, enabledCriteriaKeys, rainbowMode };
+  /* 4. EFFECT: autosave */
+  useEffect(() => {
+    const payload = { schools, weights, enabledCriteriaKeys, rainbowMode };
 
-  // always keep a guest copy
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); } catch {}
-
-  if (!user || !recordId) return;
-
-  setSaving("saving");
-  const t = setTimeout(async () => {
+    // always save guest copy
     try {
-      await saveData(recordId, payload);
-      setSaving("saved");
-      setTimeout(() => setSaving("idle"), 1200);
-    } catch (e) {
-      console.error(e);
-      setSaving("idle");
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    } catch {}
+
+    if (!user || !recordId) return;
+
+    setSaving("saving");
+    const t = setTimeout(async () => {
+      try {
+        await saveData(recordId, payload);
+        setSaving("saved");
+        setTimeout(() => setSaving("idle"), 1200);
+      } catch (e) {
+        console.error(e);
+        setSaving("idle");
+      }
+    }, 600);
+
+    return () => clearTimeout(t);
+  }, [user, recordId, schools, weights, enabledCriteriaKeys, rainbowMode]);
+
+  /* 5. DERIVED: active criteria + total weight + rows */
+  const ACTIVE = useMemo(
+    () => ALL_CRITERIA.filter((c) => enabledCriteriaKeys.includes(c.key)),
+    [enabledCriteriaKeys]
+  );
+
+  const totalWeight = useMemo(
+    () => ACTIVE.reduce((sum, c) => sum + Number(weights[c.key] || 0), 0),
+    [weights, ACTIVE]
+  );
+
+  const rowsWithScores = useMemo(() => {
+    if (!schools.length) return [];
+
+    if (!ACTIVE.length) {
+      return schools.map((s, i) => ({ ...s, composite: 0, rank: i + 1 }));
     }
-  }, 600); // debounce writes
-  return () => clearTimeout(t);
-}, [user, recordId, schools, weights, enabledCriteriaKeys, rainbowMode]);
 
+    const norm = {};
+    ACTIVE.forEach((c) => {
+      norm[c.key] = normalizeCriterion(schools, c.key, c.higherIsBetter);
+    });
 
+    const denom = totalWeight || 1;
 
- // Total weight for currently enabled criteria
-const totalWeight = useMemo(
-  () => ACTIVE.reduce((sum, c) => sum + Number(weights[c.key] || 0), 0),
-  [weights, ACTIVE]
-);
+    const rows = schools.map((s, idx) => {
+      let composite = 0;
+      for (const c of ACTIVE) {
+        const w = Number(weights[c.key] || 0);
+        const sc = norm[c.key][idx] ?? 50;
+        composite += (w / denom) * sc;
+      }
+      return { ...s, composite: Number(composite.toFixed(2)) };
+    });
 
-// Recompute rows with scores based on ACTIVE criteria only
-const rowsWithScores = useMemo(() => {
-  // No schools yet → nothing to rank
-  if (!schools.length) return [];
+    rows.sort((a, b) => (b.composite ?? 0) - (a.composite ?? 0));
+    return rows.map((r, i) => ({ ...r, rank: i + 1 }));
+  }, [schools, weights, ACTIVE, totalWeight]);
 
-  // No criteria selected yet → neutral composite (0) and stable order
-  if (!ACTIVE.length) {
-    return schools.map((s, i) => ({ ...s, composite: 0, rank: i + 1 }));
+  /* 6. TABLE / MODAL HELPERS (same as yours) */
+  function removeCriterion(key) {
+    setCriteria((prev) => prev.filter((c) => c.key !== key));
+    setWeights((w) => {
+      const nw = { ...w };
+      delete nw[key];
+      return nw;
+    });
   }
-
-  // Precompute normalized arrays per active criterion
-  const norm = {};
-  ACTIVE.forEach((c) => {
-    norm[c.key] = normalizeCriterion(schools, c.key, c.higherIsBetter);
-  });
-
-  const denom = totalWeight || 1;
-
-  // Compute weighted composite per school
-  const rows = schools.map((s, idx) => {
-    let composite = 0;
-    for (const c of ACTIVE) {
-      const w = Number(weights[c.key] || 0);
-      const sc = norm[c.key][idx] ?? 50;
-      composite += (w / denom) * sc;
-    }
-    return { ...s, composite: Number(composite.toFixed(2)) };
-  });
-
-  // Rank high → low
-  rows.sort((a, b) => (b.composite ?? 0) - (a.composite ?? 0));
-  return rows.map((r, i) => ({ ...r, rank: i + 1 }));
-}, [schools, weights, ACTIVE, totalWeight]);
-
-
-  function removeCriterion(key){
-    setCriteria((prev)=> prev.filter((c)=> c.key !== key));
-    setWeights((w)=>{ const nw = { ...w }; delete nw[key]; return nw; });
+  function restoreDefaultCriteria() {
+    setCriteria(CRITERIA_DEFAULT);
+    setWeights({ ...defaultWeights });
   }
-  function restoreDefaultCriteria(){ setCriteria(CRITERIA_DEFAULT); setWeights({ ...defaultWeights }); }
-  function deleteSelected(){
+  function deleteSelected() {
     if (selectedIds.size === 0) return;
     if (!confirm(`Delete ${selectedIds.size} selected school(s)?`)) return;
-    setSchools(prev => prev.filter(s => !selectedIds.has(s.id)));
+    setSchools((prev) => prev.filter((s) => !selectedIds.has(s.id)));
     setSelectedIds(new Set());
   }
-  const allSelected = rowsWithScores.length > 0 && rowsWithScores.every(r => selectedIds.has(r.id));
+  const allSelected =
+    rowsWithScores.length > 0 &&
+    rowsWithScores.every((r) => selectedIds.has(r.id));
 
-  const chartData = rowsWithScores.map((r) => ({ name: `#${r.rank} ${shorten(r.name, 24)}`, score: r.composite }));
-function toggleCriterionKey(key) {
-  setEnabledCriteriaKeys((prev) =>
-    prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
-  );
-  // Give default weight if criterion was just enabled
-  setWeights((w) => (w[key] == null ? { ...w, [key]: 10 } : w));
-}
+  const chartData = rowsWithScores.map((r) => ({
+    name: `#${r.rank} ${shorten(r.name, 24)}`,
+    score: r.composite,
+  }));
 
-function removeEnabledCriterion(key) {
-  // Disable the criterion
-  setEnabledCriteriaKeys((prev) => prev.filter((k) => k !== key));
-  // Clean up its weight
-  setWeights((w) => {
-    const { [key]: _drop, ...rest } = w;
-    return rest;
-  });
-}
+  function toggleCriterionKey(key) {
+    setEnabledCriteriaKeys((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+    );
+    setWeights((w) => (w[key] == null ? { ...w, [key]: 10 } : w));
+  }
 
-  function updateField(sid, key, value) { setSchools((prev) => prev.map((s) => (s.id === sid ? { ...s, [key]: value } : s))); }
-  function addSchool() { setSchools((prev) => [...prev, { id: id(), name: "New School", city: "", state: "", deadline: "" }]); }
-  function removeSchool(sid) { setSchools((prev) => prev.filter((s) => s.id !== sid)); }
-  function downloadFile(filename, text) { const a = document.createElement("a"); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(text); a.download = filename; a.click(); }
-  function exportJSON() { downloadFile("dental-ranking-data.json", JSON.stringify({ schools, weights, criteria }, null, 2)); }
-  function resetToDefaults() { if (!confirm('Reset to initial data?')) return; setSchools(initialSchools); setWeights({ ...defaultWeights }); setCriteria(CRITERIA_DEFAULT); }
-  function clearSaved() { localStorage.removeItem(STORAGE_KEY); alert('Saved copy cleared from this browser.'); }
-  function importJSON(e) { const file = e.target.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = () => { try { const parsed = JSON.parse(String(reader.result)); if (parsed.schools) setSchools(parsed.schools); if (parsed.weights) setWeights(parsed.weights); if (parsed.criteria) setCriteria(parsed.criteria); } catch { alert('Could not parse file'); } }; reader.readAsText(file); }
+  function removeEnabledCriterion(key) {
+    setEnabledCriteriaKeys((prev) => prev.filter((k) => k !== key));
+    setWeights((w) => {
+      const { [key]: _drop, ...rest } = w;
+      return rest;
+    });
+  }
 
-  function addCriterionSubmit(e){
+  function updateField(sid, key, value) {
+    setSchools((prev) =>
+      prev.map((s) => (s.id === sid ? { ...s, [key]: value } : s))
+    );
+  }
+  function addSchool() {
+    setSchools((prev) => [
+      ...prev,
+      { id: makeId(), name: "New School", city: "", state: "", deadline: "" },
+    ]);
+  }
+  function removeSchool(sid) {
+    setSchools((prev) => prev.filter((s) => s.id !== sid));
+  }
+
+  function downloadFile(filename, text) {
+    const a = document.createElement("a");
+    a.href = "data:text/json;charset=utf-8," + encodeURIComponent(text);
+    a.download = filename;
+    a.click();
+  }
+  function exportJSON() {
+    downloadFile(
+      "dental-ranking-data.json",
+      JSON.stringify({ schools, weights, criteria }, null, 2)
+    );
+  }
+  function resetToDefaults() {
+    if (!confirm("Reset to initial data?")) return;
+    // you had a bigger initial list; keep that if you want
+    setSchools([]);
+    setWeights({ ...defaultWeights });
+    setCriteria(CRITERIA_DEFAULT);
+  }
+  function clearSaved() {
+    localStorage.removeItem(STORAGE_KEY);
+    alert("Saved copy cleared from this browser.");
+  }
+  function importJSON(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(String(reader.result));
+        if (parsed.schools) setSchools(parsed.schools);
+        if (parsed.weights) setWeights(parsed.weights);
+        if (parsed.criteria) setCriteria(parsed.criteria);
+      } catch {
+        alert("Could not parse file");
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function addCriterionSubmit(e) {
     e?.preventDefault?.();
     setAddError("");
     const label = (newCrit.label || "").trim();
-    if (!label) { setAddError("Label is required"); return; }
+    if (!label) {
+      setAddError("Label is required");
+      return;
+    }
     let key = newCrit.key.trim();
     if (!key) key = safeKey(label);
     key = safeKey(key);
-    // Do not allow collisions with existing keys or base fields
-    const reserved = new Set(["id","name","city","state","deadline"]);
-    if (reserved.has(key)) { setAddError("That key is reserved. Try a different one."); return; }
-    if (criteria.some(c => c.key === key)) { setAddError("A criterion with that key already exists."); return; }
+    const reserved = new Set(["id", "name", "city", "state", "deadline"]);
+    if (reserved.has(key)) {
+      setAddError("That key is reserved. Try a different one.");
+      return;
+    }
+    if (criteria.some((c) => c.key === key)) {
+      setAddError("A criterion with that key already exists.");
+      return;
+    }
     const crit = {
       key,
       label,
       higherIsBetter: Boolean(newCrit.higherIsBetter),
       tip: newCrit.tip || "",
     };
-    setCriteria(prev => [...prev, crit]);
-    setWeights(w => ({ ...w, [key]: 0 }));
+    setCriteria((prev) => [...prev, crit]);
+    setWeights((w) => ({ ...w, [key]: 0 }));
     setAddOpen(false);
     setNewCrit({ label: "", key: "", higherIsBetter: true, tip: "" });
   }
 
-  const bgRainbow = "bg-[radial-gradient(1200px_600px_at_0%_0%,#fff0,rgba(255,0,122,0.12)),radial-gradient(900px_600px_at_100%_0%,#fff0,rgba(0,200,255,0.12)),radial-gradient(900px_600px_at_100%_100%,#fff0,rgba(0,255,150,0.12)),radial-gradient(900px_600px_at_0%_100%,#fff0,rgba(255,170,0,0.12))]";
- 
-  // --- Gate: Show landing screen if user not signed in and not guest ---
-if (!session && !guestMode) {
+  const bgRainbow =
+    "bg-[radial-gradient(1200px_600px_at_0%_0%,#fff0,rgba(255,0,122,0.12)),radial-gradient(900px_600px_at_100%_0%,#fff0,rgba(0,200,255,0.12)),radial-gradient(900px_600px_at_100%_100%,#fff0,rgba(0,255,150,0.12)),radial-gradient(900px_600px_at_0%_100%,#fff0,rgba(255,170,0,0.12))]";
+
+  /* 7. **AUTH GATE** — this must stay AFTER the hooks */
+  if (!session && !guestMode) {
+    return (
+      <EduAlignLanding
+        onGuest={continueAsGuest}
+        onSignIn={() => onSignedIn({ user: { id: "demo" } })}
+      />
+    );
+  }
+
+  /* 8. MAIN RENDER (your layout) */
   return (
-    <EduAlignLanding
-      onGuest={continueAsGuest}
-      onSignIn={() => onSignedIn({ user: { id: "demo" } })}
-    />
-  );
-}
-  
-  return (
-    <div className={`min-h-screen p-4 md:p-8 space-y-6 ${rainbowMode ? bgRainbow : "bg-gradient-to-b from-rose-50 via-sky-50 to-violet-50"}`}>
+    <div
+      className={`min-h-screen p-4 md:p-8 space-y-6 ${
+        rainbowMode
+          ? bgRainbow
+          : "bg-gradient-to-b from-rose-50 via-sky-50 to-violet-50"
+      }`}
+    >
       {/* Header */}
       <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
           <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight flex items-center gap-2">
-  <span className="bg-clip-text text-transparent bg-[conic-gradient(from_0deg_at_50%_50%,#ef4444,#f59e0b,#84cc16,#06b6d4,#8b5cf6,#ef4444)]">
-    EduAlign
-  </span>
-  <Sparkles className="w-6 h-6 md:w-7 md:h-7 text-fuchsia-500" />
-</h1>
+            <span className="bg-clip-text text-transparent bg-[conic-gradient(from_0deg_at_50%_50%,#ef4444,#f59e0b,#84cc16,#06b6d4,#8b5cf6,#ef4444)]">
+              EduAlign
+            </span>
+            <Sparkles className="w-6 h-6 md:w-7 md:h-7 text-fuchsia-500" />
+          </h1>
 
-<p className="mt-1 text-sm md:text-base text-white/90 drop-shadow-[0_1px_1px_rgb(0_0_0_/_0.25)]">
-  <span className="bg-clip-text text-transparent bg-[linear-gradient(90deg,#f43f5e,#f59e0b,#22c55e,#06b6d4,#8b5cf6)]">
-    Where Data Meets Destiny
-  </span>
-</p>
-
+          <p className="mt-1 text-sm md:text-base text-white/90 drop-shadow-[0_1px_1px_rgb(0_0_0_/_0.25)]">
+            <span className="bg-clip-text text-transparent bg-[linear-gradient(90deg,#f43f5e,#f59e0b,#22c55e,#06b6d4,#8b5cf6)]">
+              Where Data Meets Destiny
+            </span>
+          </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <label className="flex items-center gap-2 px-3 py-2 rounded-2xl border bg-white/70 cursor-pointer select-none">
-            <Palette className="w-4 h-4"/>
+            <Palette className="w-4 h-4" />
             <span className="text-sm">Rainbow mode</span>
-            <input type="checkbox" className="h-4 w-4" checked={rainbowMode} onChange={(e)=>setRainbowMode(e.target.checked)} />
+            <input
+              type="checkbox"
+              className="h-4 w-4"
+              checked={rainbowMode}
+              onChange={(e) => setRainbowMode(e.target.checked)}
+            />
           </label>
-          <button onClick={addSchool} className="rounded-2xl px-3 py-2 text-white bg-[linear-gradient(90deg,#ff80b5,#9089fc)] hover:opacity-90 flex items-center gap-2"><Plus className="w-4 h-4"/>Add School</button>
-          <button onClick={deleteSelected} disabled={selectedIds.size===0} className={`rounded-2xl px-3 py-2 border ${selectedIds.size===0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-rose-50'}`}>Delete Selected</button>
+          <button
+            onClick={addSchool}
+            className="rounded-2xl px-3 py-2 text-white bg-[linear-gradient(90deg,#ff80b5,#9089fc)] hover:opacity-90 flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Add School
+          </button>
+          <button
+            onClick={deleteSelected}
+            disabled={selectedIds.size === 0}
+            className={`rounded-2xl px-3 py-2 border ${
+              selectedIds.size === 0
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-rose-50"
+            }`}
+          >
+            Delete Selected
+          </button>
           <label className="inline-flex items-center gap-2 cursor-pointer border rounded-2xl px-3 py-2 bg-white/80">
-            <UploadIcon className="w-4 h-4"/>
+            <UploadIcon className="w-4 h-4" />
             <span>Import</span>
-            <input type="file" accept="application/json" onChange={importJSON} className="hidden"/>
+            <input
+              type="file"
+              accept="application/json"
+              onChange={importJSON}
+              className="hidden"
+            />
           </label>
-          <button onClick={exportJSON} className="rounded-2xl px-3 py-2 border border-fuchsia-200 bg-white flex items-center gap-2"><DownloadIcon className="w-4 h-4"/>Export</button>
-          <button onClick={resetToDefaults} className="rounded-2xl px-3 py-2 border bg-white hover:bg-rose-50">Reset</button>
-          <button onClick={clearSaved} className="rounded-2xl px-3 py-2 border bg-white hover:bg-amber-50">Clear Saved</button>
-          <button onClick={restoreDefaultCriteria} className="rounded-2xl px-3 py-2 border bg-white hover:bg-sky-50">Restore Default Criteria</button>
+          <button
+            onClick={exportJSON}
+            className="rounded-2xl px-3 py-2 border border-fuchsia-200 bg-white flex items-center gap-2"
+          >
+            <DownloadIcon className="w-4 h-4" />
+            Export
+          </button>
+          <button
+            onClick={resetToDefaults}
+            className="rounded-2xl px-3 py-2 border bg-white hover:bg-rose-50"
+          >
+            Reset
+          </button>
+          <button
+            onClick={clearSaved}
+            className="rounded-2xl px-3 py-2 border bg-white hover:bg-amber-50"
+          >
+            Clear Saved
+          </button>
+          <button
+            onClick={restoreDefaultCriteria}
+            className="rounded-2xl px-3 py-2 border bg-white hover:bg-sky-50"
+          >
+            Restore Default Criteria
+          </button>
         </div>
       </header>
-{/* ===== Blank Canvas Banner ===== */}
-{schools.length === 0 && criteria.length === 0 && (
-  <div className="my-6 rounded-2xl border-2 border-dashed border-white/60 bg-white/70 backdrop-blur p-6 text-center space-y-3">
-    <h2 className="text-xl font-semibold">Start Your Comparison</h2>
-    <p className="text-slate-600">
-      Add at least one school and one criterion to begin. You can customize everything.
-    </p>
-    <div className="flex items-center justify-center gap-2 flex-wrap">
-      <button
-        onClick={addSchool}
-        className="rounded-xl px-3 py-2 bg-[linear-gradient(90deg,#ff80b5,#9089fc)] text-white hover:opacity-90"
-      >
-        + Add School
-      </button>
-      <button
-        onClick={() => setAddOpen(true)}
-        className="rounded-xl px-3 py-2 border bg-white hover:bg-slate-50"
-      >
-        + Add Criterion
-      </button>
-      <button
-        onClick={restoreDefaultCriteria}
-        className="rounded-xl px-3 py-2 border bg-white hover:bg-slate-50"
-        title="Loads a sensible starter set of criteria with zero weights."
-      >
-        Load Starter Criteria
-      </button>
-    </div>
-  </div>
-)}
-{/* ===== End Blank Canvas Banner ===== */}
+
+      {/* Blank canvas banner */}
+      {schools.length === 0 && criteria.length === 0 && (
+        <div className="my-6 rounded-2xl border-2 border-dashed border-white/60 bg-white/70 backdrop-blur p-6 text-center space-y-3">
+          <h2 className="text-xl font-semibold">Start Your Comparison</h2>
+          <p className="text-slate-600">
+            Add at least one school and one criterion to begin. You can
+            customize everything.
+          </p>
+          <div className="flex items-center justify-center gap-2 flex-wrap">
+            <button
+              onClick={addSchool}
+              className="rounded-xl px-3 py-2 bg-[linear-gradient(90deg,#ff80b5,#9089fc)] text-white hover:opacity-90"
+            >
+              + Add School
+            </button>
+            <button
+              onClick={() => setAddOpen(true)}
+              className="rounded-xl px-3 py-2 border bg-white hover:bg-slate-50"
+            >
+              + Add Criterion
+            </button>
+            <button
+              onClick={restoreDefaultCriteria}
+              className="rounded-xl px-3 py-2 border bg-white hover:bg-slate-50"
+            >
+              Load Starter Criteria
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* Weights Panel */}
+        {/* weights panel */}
         <div className="xl:col-span-1 rounded-3xl shadow-sm border-2 border-rose-100 bg-white/90 backdrop-blur p-6 space-y-5">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold">Weights ({totalWeight})</h2>
-            <button onClick={()=> setAddOpen(true)} className="text-sm rounded-xl px-3 py-1.5 border bg-white hover:bg-emerald-50 inline-flex items-center gap-1"><Plus className="w-4 h-4"/>Add Criterion</button>
+            <button
+              onClick={() => setAddOpen(true)}
+              className="text-sm rounded-xl px-3 py-1.5 border bg-white hover:bg-emerald-50 inline-flex items-center gap-1"
+            >
+              <Plus className="w-4 h-4" />
+              Add Criterion
+            </button>
           </div>
-          <p className="text-sm text-slate-600">We normalize factors (min→max) before combining; lower-is-better factors are auto-inverted.</p>
+          <p className="text-sm text-slate-600">
+            We normalize factors (min→max) before combining; lower-is-better
+            factors are auto-inverted.
+          </p>
 
-          {/* Add Criterion Modal */}
+          {/* Add criterion modal */}
           {addOpen && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-              <form onSubmit={addCriterionSubmit} className="bg-white rounded-3xl w-full max-w-md p-4 shadow-lg space-y-3">
+              <form
+                onSubmit={addCriterionSubmit}
+                className="bg-white rounded-3xl w-full max-w-md p-4 shadow-lg space-y-3"
+              >
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold">Add Criterion</h3>
-                  <button type="button" className="text-sm px-2 py-1 rounded-xl hover:bg-slate-100" onClick={()=>{ setAddOpen(false); setAddError(""); }}>Close</button>
+                  <button
+                    type="button"
+                    className="text-sm px-2 py-1 rounded-xl hover:bg-slate-100"
+                    onClick={() => {
+                      setAddOpen(false);
+                      setAddError("");
+                    }}
+                  >
+                    Close
+                  </button>
                 </div>
-                {addError && <div className="text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">{addError}</div>}
+                {addError && (
+                  <div className="text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+                    {addError}
+                  </div>
+                )}
                 <div className="grid gap-2">
-                  <label className="text-sm">Label
-                    <input className="mt-1 w-full border rounded-xl px-2 py-1" value={newCrit.label} onChange={(e)=> setNewCrit(n=>({...n, label: e.target.value}))} placeholder="e.g., Clinic Hours"/>
+                  <label className="text-sm">
+                    Label
+                    <input
+                      className="mt-1 w-full border rounded-xl px-2 py-1"
+                      value={newCrit.label}
+                      onChange={(e) =>
+                        setNewCrit((n) => ({ ...n, label: e.target.value }))
+                      }
+                      placeholder="e.g., Clinic Hours"
+                    />
                   </label>
-                  <label className="text-sm">Key (optional)
-                    <input className="mt-1 w-full border rounded-xl px-2 py-1 font-mono" value={newCrit.key} onChange={(e)=> setNewCrit(n=>({...n, key: e.target.value}))} placeholder="clinic_hours"/>
+                  <label className="text-sm">
+                    Key (optional)
+                    <input
+                      className="mt-1 w-full border rounded-xl px-2 py-1 font-mono"
+                      value={newCrit.key}
+                      onChange={(e) =>
+                        setNewCrit((n) => ({ ...n, key: e.target.value }))
+                      }
+                      placeholder="clinic_hours"
+                    />
                   </label>
                   <label className="inline-flex items-center gap-2 text-sm">
-                    <input type="checkbox" checked={newCrit.higherIsBetter} onChange={(e)=> setNewCrit(n=>({...n, higherIsBetter: e.target.checked}))} />
+                    <input
+                      type="checkbox"
+                      checked={newCrit.higherIsBetter}
+                      onChange={(e) =>
+                        setNewCrit((n) => ({
+                          ...n,
+                          higherIsBetter: e.target.checked,
+                        }))
+                      }
+                    />
                     Higher is better
                   </label>
-                  <label className="text-sm">Help text (optional)
-                    <input className="mt-1 w-full border rounded-xl px-2 py-1" value={newCrit.tip} onChange={(e)=> setNewCrit(n=>({...n, tip: e.target.value}))} placeholder="How to score this (0–10, %, etc.)"/>
+                  <label className="text-sm">
+                    Help text (optional)
+                    <input
+                      className="mt-1 w-full border rounded-xl px-2 py-1"
+                      value={newCrit.tip}
+                      onChange={(e) =>
+                        setNewCrit((n) => ({ ...n, tip: e.target.value }))
+                      }
+                      placeholder="How to score this (0–10, %, etc.)"
+                    />
                   </label>
                 </div>
                 <div className="flex justify-end gap-2 pt-2">
-                  <button type="button" className="rounded-xl px-3 py-2 border" onClick={()=>{ setAddOpen(false); setAddError(""); }}>Cancel</button>
-                  <button type="submit" className="rounded-xl px-3 py-2 text-white bg-[linear-gradient(90deg,#34d399,#60a5fa)]">Add</button>
+                  <button
+                    type="button"
+                    className="rounded-xl px-3 py-2 border"
+                    onClick={() => {
+                      setAddOpen(false);
+                      setAddError("");
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="rounded-xl px-3 py-2 text-white bg-[linear-gradient(90deg,#34d399,#60a5fa)]"
+                  >
+                    Add
+                  </button>
                 </div>
               </form>
             </div>
@@ -544,42 +737,109 @@ if (!session && !guestMode) {
               <div key={String(c.key)} className="space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="font-medium flex items-center gap-2">
-                    <span className="inline-block w-3 h-3 rounded-full" style={{ background: rainbowMode ? rainbowColor(i, criteria.length) : pastelColors[i % pastelColors.length] }} />
+                    <span
+                      className="inline-block w-3 h-3 rounded-full"
+                      style={{
+                        background: rainbowMode
+                          ? rainbowColor(i, criteria.length)
+                          : pastelColors[i % pastelColors.length],
+                      }}
+                    />
                     {c.label}
-                    <button onClick={()=>removeCriterion(c.key)} className="ml-2 text-xs px-2 py-1 rounded-xl border hover:bg-rose-50">Delete</button>
+                    <button
+                      onClick={() => removeCriterion(c.key)}
+                      className="ml-2 text-xs px-2 py-1 rounded-xl border hover:bg-rose-50"
+                    >
+                      Delete
+                    </button>
                   </div>
-                  <span className="text-sm text-slate-500" title={c.tip}>{weights[c.key] ?? 0}%</span>
+                  <span className="text-sm text-slate-500" title={c.tip}>
+                    {weights[c.key] ?? 0}%
+                  </span>
                 </div>
-                <input type="range" min={0} max={30} step={1} value={Number(weights[c.key] || 0)} onChange={(e)=> setWeights((w)=> ({...w, [c.key]: Number(e.target.value)}))} className="w-full" />
-                <div className="text-xs text-slate-500">{c.higherIsBetter ? "Higher is better" : "Lower is better (auto‑inverted)"}</div>
+                <input
+                  type="range"
+                  min={0}
+                  max={30}
+                  step={1}
+                  value={Number(weights[c.key] || 0)}
+                  onChange={(e) =>
+                    setWeights((w) => ({
+                      ...w,
+                      [c.key]: Number(e.target.value),
+                    }))
+                  }
+                  className="w-full"
+                />
+                <div className="text-xs text-slate-500">
+                  {c.higherIsBetter
+                    ? "Higher is better"
+                    : "Lower is better (auto-inverted)"}
+                </div>
               </div>
             ))}
           </div>
-          <div className="text-xs text-slate-500 pt-2">Tip: Total weight doesn’t need to equal 100 — we normalize internally.</div>
+          <div className="text-xs text-slate-500 pt-2">
+            Tip: Total weight doesn’t need to equal 100 — we normalize
+            internally.
+          </div>
         </div>
 
-        {/* Table + Editors */}
+        {/* table + editors */}
         <div className="xl:col-span-2 rounded-3xl shadow-sm border-2 border-sky-100 bg-white/90 backdrop-blur p-6 space-y-4">
           <div className="inline-flex rounded-2xl border overflow-hidden">
-            <button onClick={()=>setActiveTab('data')} className={`px-3 py-2 text-sm ${activeTab==='data' ? 'bg-fuchsia-100' : 'bg-white'}`}>Data Table</button>
-            <button onClick={()=>setActiveTab('chart')} className={`px-3 py-2 text-sm flex items-center gap-1 ${activeTab==='chart' ? 'bg-fuchsia-100' : 'bg-white'}`}><BarChart2 className="w-4 h-4"/>Chart</button>
+            <button
+              onClick={() => setActiveTab("data")}
+              className={`px-3 py-2 text-sm ${
+                activeTab === "data" ? "bg-fuchsia-100" : "bg-white"
+              }`}
+            >
+              Data Table
+            </button>
+            <button
+              onClick={() => setActiveTab("chart")}
+              className={`px-3 py-2 text-sm flex items-center gap-1 ${
+                activeTab === "chart" ? "bg-fuchsia-100" : "bg-white"
+              }`}
+            >
+              <BarChart2 className="w-4 h-4" />
+              Chart
+            </button>
           </div>
 
-          {activeTab === 'data' && (
+          {activeTab === "data" && (
             <div className="overflow-x-auto rounded-2xl border">
               <table className="w-full text-sm">
                 <thead className="bg-pink-50/70">
                   <tr>
-                    <th className="p-3 text-left w-[40px]"><input type="checkbox" checked={allSelected} onChange={()=>{
-                      if(allSelected){ setSelectedIds(new Set()); } else { setSelectedIds(new Set(rowsWithScores.map(r=>r.id))); }
-                    }} /></th>
+                    <th className="p-3 text-left w-[40px]">
+                      <input
+                        type="checkbox"
+                        checked={allSelected}
+                        onChange={() => {
+                          if (allSelected) {
+                            setSelectedIds(new Set());
+                          } else {
+                            setSelectedIds(
+                              new Set(rowsWithScores.map((r) => r.id))
+                            );
+                          }
+                        }}
+                      />
+                    </th>
                     <th className="p-3 text-left">Rank</th>
                     <th className="p-3 text-left">School</th>
                     <th className="p-3 text-left">City</th>
                     <th className="p-3 text-left">State</th>
                     <th className="p-3 text-left">Deadline</th>
                     {criteria.map((c) => (
-                      <th key={String(c.key)} className="p-3 text-left whitespace-nowrap" title={c.tip}>{c.label}</th>
+                      <th
+                        key={String(c.key)}
+                        className="p-3 text-left whitespace-nowrap"
+                        title={c.tip}
+                      >
+                        {c.label}
+                      </th>
                     ))}
                     <th className="p-3 text-left">Combined</th>
                     <th className="p-3 text-left"></th>
@@ -587,27 +847,93 @@ if (!session && !guestMode) {
                 </thead>
                 <tbody>
                   {rowsWithScores.map((row, i) => (
-                    <tr key={row.id} className="border-t transition-colors" style={{ background: rainbowMode ? rainbowAlpha(i, rowsWithScores.length, 0.08) : undefined }}>
-                      <td className="p-3"><input type="checkbox" checked={selectedIds.has(row.id)} onChange={()=>{
-                            setSelectedIds(prev=>{ const s = new Set(prev); if(s.has(row.id)) s.delete(row.id); else s.add(row.id); return s; });
-                          }} /></td>
+                    <tr
+                      key={row.id}
+                      className="border-t transition-colors"
+                      style={{
+                        background: rainbowMode
+                          ? rainbowAlpha(i, rowsWithScores.length, 0.08)
+                          : undefined,
+                      }}
+                    >
+                      <td className="p-3">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(row.id)}
+                          onChange={() => {
+                            setSelectedIds((prev) => {
+                              const s = new Set(prev);
+                              if (s.has(row.id)) s.delete(row.id);
+                              else s.add(row.id);
+                              return s;
+                            });
+                          }}
+                        />
+                      </td>
                       <td className="p-3 font-medium">
                         <span className="inline-flex items-center gap-2">
-                          <span className="inline-block w-2 h-5 rounded-full" style={{ background: rainbowMode ? rainbowColor(i, rowsWithScores.length) : pastelColors[i % pastelColors.length] }} />
+                          <span
+                            className="inline-block w-2 h-5 rounded-full"
+                            style={{
+                              background: rainbowMode
+                                ? rainbowColor(i, rowsWithScores.length)
+                                : pastelColors[i % pastelColors.length],
+                            }}
+                          />
                           {row.rank}
                         </span>
                       </td>
-                      <td className="p-3 min-w-[260px]"><InlineEdit value={row.name} onChange={(v) => updateField(row.id, "name", v)} /></td>
-                      <td className="p-3"><InlineEdit value={row.city || ""} onChange={(v) => updateField(row.id, "city", v)} /></td>
-                      <td className="p-3 w-[80px]"><InlineEdit value={row.state || ""} onChange={(v) => updateField(row.id, "state", v)} /></td>
-                      <td className="p-3 w-[140px]"><InlineEdit value={row.deadline || ""} placeholder="YYYY-MM-DD" onChange={(v) => updateField(row.id, "deadline", v)} /></td>
+                      <td className="p-3 min-w-[260px]">
+                        <InlineEdit
+                          value={row.name}
+                          onChange={(v) => updateField(row.id, "name", v)}
+                        />
+                      </td>
+                      <td className="p-3">
+                        <InlineEdit
+                          value={row.city || ""}
+                          onChange={(v) => updateField(row.id, "city", v)}
+                        />
+                      </td>
+                      <td className="p-3 w-[80px]">
+                        <InlineEdit
+                          value={row.state || ""}
+                          onChange={(v) => updateField(row.id, "state", v)}
+                        />
+                      </td>
+                      <td className="p-3 w-[140px]">
+                        <InlineEdit
+                          value={row.deadline || ""}
+                          placeholder="YYYY-MM-DD"
+                          onChange={(v) => updateField(row.id, "deadline", v)}
+                        />
+                      </td>
                       {criteria.map((c) => (
                         <td key={String(c.key)} className="p-3 w-[120px]">
-                          <NumericCell value={row[c.key]} onChange={(v) => updateField(row.id, c.key, v)} placeholder={c.key === 'looks' ? '← your score' : (c.key === 'cityLike' ? '0–10' : '')} />
+                          <NumericCell
+                            value={row[c.key]}
+                            onChange={(v) => updateField(row.id, c.key, v)}
+                            placeholder={
+                              c.key === "looks"
+                                ? "← your score"
+                                : c.key === "cityLike"
+                                ? "0–10"
+                                : ""
+                            }
+                          />
                         </td>
                       ))}
-                      <td className="p-3 font-semibold">{(row.composite ?? 0).toFixed(1)}</td>
-                      <td className="p-3"><button onClick={() => removeSchool(row.id)} className="p-2 rounded-xl hover:bg-rose-100"><Trash2 className="w-4 h-4"/></button></td>
+                      <td className="p-3 font-semibold">
+                        {(row.composite ?? 0).toFixed(1)}
+                      </td>
+                      <td className="p-3">
+                        <button
+                          onClick={() => removeSchool(row.id)}
+                          className="p-2 rounded-xl hover:bg-rose-100"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -615,77 +941,120 @@ if (!session && !guestMode) {
             </div>
           )}
 
-         {activeTab === 'chart' && (
-  chartData.length > 0 ? (
-    <div className="h-[460px] w-full">
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
-          <XAxis
-            dataKey="name"
-            hide={true}
-            tick={false}
-            tickLine={false}
-            axisLine={false}
-          />
-          <YAxis domain={[0, 100]} />
-          <Tooltip
-            formatter={(v, _k, p) => [
-              `${Number(v).toFixed(1)}`,
-              p && p.payload ? p.payload.rawName : '',
-            ]}
-            labelFormatter={() => ''}
-          />
-          <Bar dataKey="score" radius={[8, 8, 0, 0]}>
-            {chartData.map((_, i) => (
-              <Cell
-                key={i}
-                fill={
-                  rainbowMode
-                    ? rainbowColor(i, chartData.length)
-                    : pastelColors[i % pastelColors.length]
-                }
-              />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-  ) : (
-    <div className="text-center text-slate-600 text-sm py-10 bg-white/60 rounded-xl shadow-sm">
-      Add schools and criteria to generate a chart.
-    </div>
-  )
-)}
+          {activeTab === "chart" && (
+            <>
+              {chartData.length > 0 ? (
+                <div className="h-[460px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={chartData}
+                      margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
+                    >
+                      <XAxis
+                        dataKey="name"
+                        hide={true}
+                        tick={false}
+                        tickLine={false}
+                        axisLine={false}
+                      />
+                      <YAxis domain={[0, 100]} />
+                      <Tooltip
+                        formatter={(v, _k, p) => [
+                          `${Number(v).toFixed(1)}`,
+                          p && p.payload ? p.payload.rawName : "",
+                        ]}
+                        labelFormatter={() => ""}
+                      />
+                      <Bar dataKey="score" radius={[8, 8, 0, 0]}>
+                        {chartData.map((_, i) => (
+                          <Cell
+                            key={i}
+                            fill={
+                              rainbowMode
+                                ? rainbowColor(i, chartData.length)
+                                : pastelColors[i % pastelColors.length]
+                            }
+                          />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <div className="text-center text-slate-600 text-sm py-10 bg-white/60 rounded-xl shadow-sm">
+                  Add schools and criteria to generate a chart.
+                </div>
+              )}
+            </>
+          )}
 
-          {/* Aesthetic Rater */}
+          {/* aesthetic rater */}
           <div>
-            <button onClick={()=>setRaterOpen(true)} className="rounded-2xl px-3 py-2 text-white bg-[linear-gradient(90deg,#ff80b5,#9089fc)] hover:opacity-90 inline-flex items-center gap-2"><Star className="w-4 h-4"/>Open Rater</button>
+            <button
+              onClick={() => setRaterOpen(true)}
+              className="rounded-2xl px-3 py-2 text-white bg-[linear-gradient(90deg,#ff80b5,#9089fc)] hover:opacity-90 inline-flex items-center gap-2"
+            >
+              <Star className="w-4 h-4" />
+              Open Rater
+            </button>
             {raterOpen && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
                 <div className="bg-white rounded-3xl w-full max-w-2xl p-4 shadow-lg">
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-lg font-semibold">Rate Aesthetics (0–10)</h3>
-                    <button className="text-sm px-2 py-1 rounded-xl hover:bg-slate-100" onClick={()=>setRaterOpen(false)}>Close</button>
+                    <button
+                      className="text-sm px-2 py-1 rounded-xl hover:bg-slate-100"
+                      onClick={() => setRaterOpen(false)}
+                    >
+                      Close
+                    </button>
                   </div>
                   <div className="max-h-[60vh] overflow-y-auto pr-2 space-y-3">
                     {schools.map((s, i) => (
-                      <div key={s.id} className="grid grid-cols-[1fr,120px] gap-3 items-center">
+                      <div
+                        key={s.id}
+                        className="grid grid-cols-[1fr,120px] gap-3 items-center"
+                      >
                         <div className="text-sm">
                           <span className="font-medium flex items-center gap-2">
-                            <span className="inline-block w-3 h-3 rounded-full" style={{ background: rainbowColor(i, schools.length) }} />
+                            <span
+                              className="inline-block w-3 h-3 rounded-full"
+                              style={{
+                                background: rainbowColor(i, schools.length),
+                              }}
+                            />
                             {s.name}
                           </span>
-                          <div className="text-slate-500">{s.city}, {s.state}</div>
+                          <div className="text-slate-500">
+                            {s.city}, {s.state}
+                          </div>
                         </div>
-                        <input type="number" min={0} max={10} step={0.1} className="border rounded-xl px-2 py-1"
-                               value={schools[i].looks ?? ""}
-                               onChange={(e)=> updateField(s.id, 'looks', parseNumberOrNull(e.target.value))}
-                               placeholder="0–10"/>
+                        <input
+                          type="number"
+                          min={0}
+                          max={10}
+                          step={0.1}
+                          className="border rounded-xl px-2 py-1"
+                          value={s.looks ?? ""}
+                          onChange={(e) =>
+                            updateField(
+                              s.id,
+                              "looks",
+                              parseNumberOrNull(e.target.value)
+                            )
+                          }
+                          placeholder="0–10"
+                        />
                       </div>
                     ))}
                   </div>
                   <div className="flex justify-end gap-2 pt-3">
-                    <button className="rounded-2xl px-3 py-2 border" onClick={()=>setRaterOpen(false)}>Done</button>
+                    <button
+                      className="rounded-2xl px-3 py-2 border"
+                      onClick={() => setRaterOpen(false)}
+                    >
+                      Done
+                    </button>
                   </div>
                 </div>
               </div>
@@ -699,25 +1068,35 @@ if (!session && !guestMode) {
         <div className="space-y-3">
           <h3 className="text-lg font-semibold">Quick Notes</h3>
           <ul className="text-sm text-slate-600 list-disc pl-5 space-y-2">
-            <li>We normalize each factor with min→max scaling to 0–100 and auto‑invert lower‑is‑better ones (Price, Grad Requirements).</li>
+            <li>
+              We normalize each factor with min→max scaling to 0–100 and
+              auto-invert lower-is-better ones (Price, Grad Requirements).
+            </li>
             <li>Composite score is a weighted average of those standardized scores.</li>
-            <li>Leave a field blank if you don’t know it — we treat it neutrally (~50 after scaling).</li>
+            <li>
+              Leave a field blank if you don’t know it — we treat it neutrally (~50
+              after scaling).
+            </li>
           </ul>
         </div>
         <div className="space-y-3">
           <h3 className="text-lg font-semibold">Tips</h3>
           <ul className="text-sm text-slate-600 list-disc pl-5 space-y-2">
-            <li>Use <strong>How Much I Like the City</strong> (0–10) for your personal preference.</li>
+            <li>
+              Use <strong>How Much I Like the City</strong> (0–10) for your personal
+              preference.
+            </li>
             <li>Use Export/Import to move data between devices or share.</li>
           </ul>
         </div>
       </div>
 
-      {/* Internal Checks */}
       <InternalChecks />
     </div>
   );
 }
+
+/* -------------------- SMALL COMPONENTS -------------------- */
 
 function InlineEdit({ value, onChange, placeholder }) {
   const [v, setV] = useState(value ?? "");
@@ -726,7 +1105,10 @@ function InlineEdit({ value, onChange, placeholder }) {
     <input
       className="w-full bg-transparent outline-none border-b border-transparent focus:border-slate-300 transition-colors"
       value={v}
-      onChange={(e) => { setV(e.target.value); if (onChange) onChange(e.target.value); }}
+      onChange={(e) => {
+        setV(e.target.value);
+        if (onChange) onChange(e.target.value);
+      }}
       placeholder={placeholder}
     />
   );
@@ -741,77 +1123,48 @@ function NumericCell({ value, onChange, placeholder }) {
       type="number"
       step="any"
       value={v}
-      onChange={(e) => { setV(e.target.value); if (onChange) onChange(parseNumberOrNull(e.target.value)); }}
+      onChange={(e) => {
+        setV(e.target.value);
+        if (onChange) onChange(parseNumberOrNull(e.target.value));
+      }}
       placeholder={placeholder}
     />
   );
 }
 
-function minMaxForTest(arr){ return minMax(arr); }
+function minMaxForTest(arr) {
+  return minMax(arr);
+}
 
-function InternalChecks(){
+function InternalChecks() {
   const [logs, setLogs] = useState([]);
-  useEffect(()=>{
+  useEffect(() => {
     const out = [];
-    // Existing tests (keep)
-    const mm = minMaxForTest([0,50,100]);
-    out.push(Math.abs(mm.scale(0)-0)<1e-6 ? '✅ minMax scales 0→0' : '❌ minMax 0');
-    out.push(Math.abs(mm.scale(100)-100)<1e-6 ? '✅ minMax scales 100→100' : '❌ minMax 100');
-    const rows = [{price:100},{price:200}];
-    const inv = normalizeCriterion(rows,'price',false);
-    out.push(inv[0] > inv[1] ? '✅ lower price scores higher' : '❌ price invert');
 
-    // Added tests (do not change existing ones)
-    // 1) criteria-driven weighting should not throw and should return numbers
-    try {
-      const sampleCriteria = [
-        { key: 'a', higherIsBetter: true },
-        { key: 'b', higherIsBetter: false },
-      ];
-      const sampleRows = [ { id:'1', a: 10, b: 20 }, { id:'2', a: 20, b: 10 } ];
-      const weights = { a: 50, b: 50 };
-      const norm = {};
-      sampleCriteria.forEach(c => { norm[c.key] = normalizeCriterion(sampleRows, c.key, c.higherIsBetter); });
-      const comp = sampleRows.map((_, idx)=> (weights.a/100)*norm.a[idx] + (weights.b/100)*norm.b[idx]);
-      const allFinite = comp.every((x)=> Number.isFinite(x));
-      out.push(allFinite ? '✅ composite returns finite numbers' : '❌ composite not finite');
-    } catch(e) {
-      out.push('❌ criteria loop threw: ' + (e && e.message ? e.message : 'unknown'));
-    }
+    const mm = minMaxForTest([0, 50, 100]);
+    out.push(Math.abs(mm.scale(0) - 0) < 1e-6 ? "✅ minMax 0" : "❌ minMax 0");
+    out.push(
+      Math.abs(mm.scale(100) - 100) < 1e-6 ? "✅ minMax 100" : "❌ minMax 100"
+    );
 
-    // 2) Deleting a criterion should reduce total weight used
     try {
-      const before = ['x','y'];
-      const w = { x: 10, y: 20 };
-      const total = before.reduce((s,k)=>s+(w[k]||0),0);
-      const after = before.filter(k=>k!=='x');
-      const totalAfter = after.reduce((s,k)=>s+(w[k]||0),0);
-      out.push(totalAfter < total ? '✅ removing criterion lowers total used in example' : '❌ remove criterion weight test');
-    } catch(e) {
-      out.push('❌ remove criterion test threw');
-    }
-
-    // 3) Adding a criterion initializes weight to 0 and increases criteria length
-    try {
-      const crits = [{key:'m',higherIsBetter:true}];
-      const w = { m: 10 };
-      const newKey = 'n';
-      const added = [...crits, {key:newKey,higherIsBetter:false}];
-      const w2 = { ...w, [newKey]: 0 };
-      const okLen = added.length === crits.length + 1;
-      const okWeight = (w2[newKey] === 0);
-      out.push(okLen && okWeight ? '✅ adding criterion sets weight=0 and increases list' : '❌ add criterion test');
-    } catch(e) {
-      out.push('❌ add criterion test threw');
+      const rows = [{ price: 100 }, { price: 200 }];
+      const inv = normalizeCriterion(rows, "price", false);
+      out.push(inv[0] > inv[1] ? "✅ lower price scores higher" : "❌ price invert");
+    } catch (e) {
+      out.push("❌ price invert threw");
     }
 
     setLogs(out);
-  },[]);
+  }, []);
   return (
     <div className="rounded-3xl shadow-sm border-2 border-emerald-100 bg-white/90 backdrop-blur p-4">
       <h3 className="text-base font-semibold mb-2">Internal Checks</h3>
-      <ul className="text-sm text-slate-700 grid gap-1">{logs.map((t,i)=>(<li key={i}>{t}</li>))}</ul>
+      <ul className="text-sm text-slate-700 grid gap-1">
+        {logs.map((t, i) => (
+          <li key={i}>{t}</li>
+        ))}
+      </ul>
     </div>
   );
 }
-
