@@ -195,35 +195,29 @@ function EduAlignLanding({ onGuest, onSignIn }) {
 
         {/* tabs */}
         <div className="flex rounded-2xl bg-white/20 p-1 gap-1">
-          <button
-            onClick={() => {
-              setMode("signin");
-              setError("");
-            }}
-            className={`flex-1 py-2 rounded-xl text-sm font-medium ${
-              mode === "signin" ? "bg-white/90 text-slate-900" : "text-white/80"
-            }`}
-          >
-            Sign in
-          </button>
-          <button
-            onClick={() => {
-              setMode("signup");
-              setError("");
-            }}
-            className={`flex-1 py-2 rounded-xl text-sm font-medium ${
-              mode === "signup" ? "bg-white/90 text-slate-900" : "text-white/80"
-            }`}
-          >
-            Create account
-          </button>
-          <button
-            onClick={() => onGuest?.()}
-            className="flex-1 py-2 rounded-xl text-sm font-medium text-white/90 hover:bg-white/10"
-          >
-            Guest
-          </button>
-        </div>
+  <button
+    onClick={() => { setMode("signin"); setError(""); }}
+    className={`flex-1 py-2 rounded-xl text-sm font-medium ${
+      mode === "signin" ? "bg-white/90 text-black" : "text-black"
+    }`}
+  >
+    Sign in
+  </button>
+  <button
+    onClick={() => { setMode("signup"); setError(""); }}
+    className={`flex-1 py-2 rounded-xl text-sm font-medium ${
+      mode === "signup" ? "bg-white/90 text-black" : "text-black"
+    }`}
+  >
+    Create account
+  </button>
+  <button
+    onClick={() => onGuest?.()}
+    className="flex-1 py-2 rounded-xl text-sm font-medium text-black hover:bg-white/10"
+  >
+    Guest
+  </button>
+</div>
 
         {/* form */}
         <form
