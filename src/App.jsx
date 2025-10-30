@@ -1064,8 +1064,17 @@ export default function DentalRankingApp() {
                           <NumericCell
                             value={row[c.key]}
                             onChange={(v) => updateField(row.id, c.key, v)}
-                  placeholder={c.key === 'looks' ? 'rate the campus 0–10' : ...}
-
+                            placeholder={
+                              c.key === "looks"
+                                ? "rate the campus 0–10"
+                                : c.key === "cityLike"
+                                ? "0–10"
+                                : c.key === "curriculum"
+                                ? "flexibility 0–10"
+                                : c.key === "clinical"
+                                ? "exposure 0–10"
+                                : ""
+                            }
                           />
                         </td>
                       ))}
