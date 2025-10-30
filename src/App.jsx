@@ -188,6 +188,9 @@ function signOutEverywhere() {
 const [schools, setSchools] = useState([]);            // start empty
 const [weights, setWeights] = useState({});            // no default weights yet
 const [rainbowMode, setRainbowMode] = useState(true);  // rainbow toggle stays on
+ // selection for table
+const [selectedIds, setSelectedIds] = useState(new Set());
+ 
 
 
   
