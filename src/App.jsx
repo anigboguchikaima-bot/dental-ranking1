@@ -231,7 +231,7 @@ function EduAlignLanding({ onGuest, onSignIn }) {
           className="space-y-4"
         >
           <div>
-            <label className="text-xs text-white/80">Email</label>
+            <label className="text-xs rainbow-text">Email</label>
             <input
               type="email"
               required
@@ -242,7 +242,7 @@ function EduAlignLanding({ onGuest, onSignIn }) {
             />
           </div>
           <div>
-            <label className="text-xs text-white/80">Password</label>
+            <label className="text-xs rainbow-text">Password</label>
             <input
               type="password"
               required
@@ -273,7 +273,7 @@ function EduAlignLanding({ onGuest, onSignIn }) {
           </button>
         </form>
 
-        <p className="text-[10px] text-white/60 text-center">
+        <p className="text-[10px] rainbow-text text-center">
           Or continue as guest – data will be saved to this browser only.
         </p>
       </div>
