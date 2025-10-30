@@ -217,7 +217,7 @@ function EduAlignLanding({ onGuest, onSignIn }) {
     </div>
 
     <p className="text-xs text-black/70 italic text-center pt-1">
-      Sign in or continue as guest to start aligning your data with your destiny.
+      Create an account to begin on your journey!
     </p>
   </div>
 </div>
