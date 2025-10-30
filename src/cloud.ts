@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { supabase } from "./supabaseClient";
 
 /** Email magic-link sign-in */
 export async function signIn(email: string) {
