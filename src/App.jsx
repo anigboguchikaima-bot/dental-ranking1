@@ -212,7 +212,7 @@ function EduAlignLanding({ onGuest, onSignIn }) {
       <ol className="list-decimal list-inside space-y-1">
         <li>Pick the schools you’re interested in.</li>
         <li>Rate each one based on the factors that matter to you.</li>
-        <li>Watch EduAlign create a living bar chart that updates in real time.</li>
+        <li>Watch EduAlign create a living bar chart and table that updates in real time.</li>
       </ol>
     </div>
 
