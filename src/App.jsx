@@ -190,6 +190,20 @@ const [weights, setWeights] = useState({});            // no default weights yet
 const [rainbowMode, setRainbowMode] = useState(true);  // rainbow toggle stays on
  // selection for table
 const [selectedIds, setSelectedIds] = useState(new Set());
+// criteria state (start with the built-in ones)
+const [criteria, setCriteria] = useState(ALL_CRITERIA);
+
+// modal / add-criterion helpers
+const [newCrit, setNewCrit] = useState({
+  label: "",
+  key: "",
+  higherIsBetter: true,
+  tip: "",
+});
+
+const [addError, setAddError] = useState("");
+const [raterOpen, setRaterOpen] = useState(false);
+
  
 
 
