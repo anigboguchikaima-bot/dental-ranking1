@@ -191,15 +191,14 @@ function EduAlignLanding({ onGuest, onSignIn }) {
         transition-all duration-300`}
     >
       <div className="w-full max-w-md rounded-3xl border border-white/20 bg-white/20 backdrop-blur-xl shadow-2xl p-6 md:p-8 space-y-6">
-        {/* title */}
-        <div className="text-center space-y-2">
-          <h1 className="text-4xl font-extrabold tracking-tight">
-            <span className="bg-clip-text text-transparent bg-[conic-gradient(from_0deg_at_50%_50%,#ef4444,#f59e0b,#84cc16,#06b6d4,#8b5cf6,#ef4444)]">
-              EduAlign
-            </span>
-          </h1>
-          <p className="text-sm text-white/80">Where Data Meets Destiny</p>
-        </div>
+      {/* title */}
+      <div className="text-center space-y-2">
+        <h1 className="text-4xl font-extrabold tracking-tight rainbow-text">
+          EduAlign
+        </h1>
+        <p className="text-sm rainbow-text">Where Data Meets Destiny</p>
+      </div>
+
 
         {/* tabs */}
         <div className="flex rounded-2xl bg-white/20 p-1 gap-1">
