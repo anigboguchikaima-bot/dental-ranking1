@@ -1,11 +1,82 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dental Schools Ranking App</title>
-  </head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ✅ Title (shows in tab + search results) -->
+  <title>AlignMyNext — Compare Dental, Med & Law Schools Smarter</title>
+
+  <!-- ✅ Meta Description (primary snippet in Google/Bing) -->
+  <meta
+    name="description"
+    content="AlignMyNext helps students compare graduate programs—Dental, Medical, and Law—using customizable criteria, weighted rankings, and a live bar chart visualization."
+  />
+
+  <!-- (Optional) Keywords – low weight but harmless -->
+  <meta
+    name="keywords"
+    content="compare grad schools, dental school ranking, medical school comparison, law school ranking, pre-dental, pre-med, pre-law"
+  />
+
+  <!-- ✅ Tell search engines to index/follow -->
+  <meta name="robots" content="index, follow" />
+
+  <!-- ✅ Canonical URL (avoid duplicate/param pages) -->
+  <link rel="canonical" href="https://alignmynext.com/" />
+
+  <!-- ✅ Favicon / app icons (adjust paths if you have them) -->
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta name="theme-color" content="#ffffff" />
+
+  <!-- ✅ Open Graph (Facebook/LinkedIn/iMessage) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://alignmynext.com/" />
+  <meta property="og:title" content="AlignMyNext — Your Grad School Decision Tool" />
+  <meta
+    property="og:description"
+    content="Compare Dental, Med, and Law schools using personalized criteria and a live bar chart. No spreadsheets—just clarity."
+  />
+  <meta property="og:image" content="https://alignmynext.com/preview.png" />
+
+  <!-- ✅ Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="AlignMyNext — Compare Dental, Med & Law Schools" />
+  <meta
+    name="twitter:description"
+    content="Rank schools using customizable criteria and a live bar-chart visualization."
+  />
+  <meta name="twitter:image" content="https://alignmynext.com/preview.png" />
+
+  <!-- ✅ (Optional) Site verification tags – leave commented until you verify via Search Console/Bing -->
+  <!-- <meta name="google-site-verification" content="PASTE_GOOGLE_CODE_HERE" /> -->
+  <!-- <meta name="msvalidate.01" content="PASTE_BING_CODE_HERE" /> -->
+
+  <!-- ✅ JSON-LD Schema (helps search engines understand your app) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "AlignMyNext",
+    "url": "https://alignmynext.com/",
+    "description": "Compare graduate programs—Dental, Medical, and Law—using customizable weights, transparent criteria, and a live bar chart.",
+    "applicationCategory": "EducationApplication",
+    "operatingSystem": "Web",
+    "inLanguage": "en",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "AlignMyNext"
+    }
+  }
+  </script>
+</head>
+
   <body class="bg-gray-50 text-gray-900">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
