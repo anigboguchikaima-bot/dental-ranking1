@@ -164,7 +164,7 @@ function normalizeCriterion(rows, key, higherIsBetter) {
 
 /* -------------------- LANDING -------------------- */
 
-function EduAlignLanding({ onGuest, onSignIn }) {
+function AlignMyNextLanding({ onGuest, onSignIn }) {
   const [mode, setMode] = React.useState("signin");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -223,7 +223,7 @@ function EduAlignLanding({ onGuest, onSignIn }) {
         {/* title */}
         <div className="text-center space-y-4">
   <h1 className="text-4xl font-extrabold tracking-tight rainbow-text">
-    EduAlign
+    AlignMyNext
   </h1>
 
   <p className="text-sm rainbow-text">
@@ -233,7 +233,7 @@ function EduAlignLanding({ onGuest, onSignIn }) {
   {/* Explanation */}
   <div className="mt-3 text-left bg-white/40 backdrop-blur-md rounded-2xl p-4 text-sm text-black/80 border border-white/30 mx-auto max-w-sm space-y-2 shadow-inner">
     <p className="leading-relaxed">
-      <strong>EduAlign</strong> helps you make smarter, personalized school decisions.
+      <strong>AlignMyNext</strong> helps you make smarter, personalized school decisions.
       It turns the data you care about — location, cost, diversity, weather, and more —
       into a ranked list built around your unique priorities.
     </p>
@@ -245,7 +245,7 @@ function EduAlignLanding({ onGuest, onSignIn }) {
       <ol className="list-decimal list-inside space-y-1">
         <li>Pick the schools you’re interested in.</li>
         <li>Rate each one based on the factors that matter to you.</li>
-        <li>Watch EduAlign create a living bar chart and table that updates in real time.</li>
+        <li>Watch AlignMyNext create a living bar chart and table that updates in real time.</li>
       </ol>
     </div>
 
@@ -344,17 +344,17 @@ export default function DentalRankingApp() {
   // 1. auth gate
   const [session, setSession] = useState(null);
   const [guestMode, setGuestMode] = useState(() => {
-    return localStorage.getItem("edualign_guest") === "1";
+    return localStorage.getItem("AlignMyNext_guest") === "1";
   });
 
   function onSignedIn(sessionObj) {
     setSession(sessionObj);
-    localStorage.removeItem("edualign_guest");
+    localStorage.removeItem("AlignMyNext_guest");
     setGuestMode(false);
   }
 
   function continueAsGuest() {
-    localStorage.setItem("edualign_guest", "1");
+    localStorage.setItem("AlignMyNext_guest", "1");
     setGuestMode(true);
     setSession(null);
   }
@@ -366,7 +366,7 @@ export default function DentalRankingApp() {
       console.warn("supabase signout failed (ok in guest):", e);
     }
     setSession(null);
-    localStorage.removeItem("edualign_guest");
+    localStorage.removeItem("AlignMyNext_guest");
     setGuestMode(false);
   }
 
@@ -640,7 +640,7 @@ export default function DentalRankingApp() {
   // 7. auth gate
   if (!session && !guestMode) {
     return (
-      <EduAlignLanding
+      <AlignMyNextLanding
         onGuest={continueAsGuest}
         onSignIn={onSignedIn}
       />
@@ -661,7 +661,7 @@ export default function DentalRankingApp() {
         <div>
           <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight flex items-center gap-2">
             <span className="bg-clip-text text-transparent bg-[conic-gradient(from_0deg_at_50%_50%,#ef4444,#f59e0b,#84cc16,#06b6d4,#8b5cf6,#ef4444)]">
-              EduAlign
+              AlignMyNext
             </span>
             <Sparkles className="w-6 h-6 md:w-7 md:h-7 text-fuchsia-500" />
           </h1>
