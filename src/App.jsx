@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+fimport React, { useEffect, useMemo, useState } from "react";
 import {
   Plus,
   Trash2,
@@ -232,26 +232,15 @@ function AlignMyNextLanding({ onGuest, onSignIn }) {
   </p>
 
   {/* Explanation */}
-  <div className="mt-3 text-left bg-white/40 backdrop-blur-md rounded-2xl p-4 text-sm text-black/80 border border-white/30 mx-auto max-w-sm space-y-2 shadow-inner">
-    <p className="leading-relaxed">
-      <strong>AlignMyNext</strong> helps you make smarter, personalized school decisions.
-      It turns the data you care about — location, cost, diversity, weather, and more —
-      into a ranked list built around your unique priorities.
+  <div className="rounded-3xl border border-white/30 bg-white/25 backdrop-blur p-6 md:p-7 shadow-[0_8px_30px_rgba(0,0,0,0.06)]">
+    <p className="text-[1.05rem] leading-7 md:text-lg text-slate-800">
+      <strong>AlignMyNext</strong> helps you choose the right school — fast.
     </p>
-
-    <div>
-      <h3 className="text-sm font-semibold rainbow-text mb-1 text-center">
-        How It Works
-      </h3>
-      <ol className="list-decimal list-inside space-y-1">
-        <li>Pick the schools you’re interested in.</li>
-        <li>Rate each one based on the factors that matter to you.</li>
-        <li>Watch AlignMyNext create a living bar chart and table that updates in real time.</li>
-      </ol>
-    </div>
-
-    <p className="text-xs text-black/70 italic text-center pt-1">
-      Create an account to begin on your journey!
+    <p className="mt-2 text-[1.05rem] leading-7 md:text-lg text-slate-800">
+      Rate schools based on what matters to <em>you</em>, and watch a ranked list update in real time.
+    </p>
+    <p className="mt-4 text-sm italic text-slate-600">
+      Create an account to begin your journey!
     </p>
   </div>
 </div>
