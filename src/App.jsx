@@ -6,8 +6,6 @@ import {
   BarChart2,
   Sparkles,
   Palette,
-  Download as DownloadIcon,
-  Upload as UploadIcon,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -699,25 +697,6 @@ export default function DentalRankingApp() {
             Delete Selected
           </button>
 
-          <label className="inline-flex items-center gap-2 cursor-pointer border rounded-2xl px-3 py-2 bg-white/80">
-            <UploadIcon className="w-4 h-4" />
-            <span>Import</span>
-            <input
-              type="file"
-              accept="application/json"
-              onChange={importJSON}
-              className="hidden"
-            />
-          </label>
-
-          <button
-            onClick={exportJSON}
-            className="rounded-2xl px-3 py-2 border border-fuchsia-200 bg-white flex items-center gap-2"
-          >
-            <DownloadIcon className="w-4 h-4" />
-            Export
-          </button>
-
           <button
             onClick={restoreDefaultCriteria}
             className="rounded-2xl px-3 py-2 border bg-white hover:bg-sky-50"
@@ -1251,7 +1230,6 @@ export default function DentalRankingApp() {
               Use <strong>How Much I Like the City</strong> (0–10) for your personal
               preference.
             </li>
-            <li>Use Export/Import to move data between devices or share.</li>
           </ul>
         </div>
       </div>
