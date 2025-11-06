@@ -237,7 +237,7 @@ function AlignMyNextLanding({ onGuest, onSignIn }) {
     Rate dental schools, law schools, or medical schools based on your priorities and watch a live, weighted ranking update in real time.
   </p>
 
-  <p className="mt-3 text-xs md:text-sm font-semibold text-slate-600 italic">
+  <p className="text-center italic text-xs text-slate-500 mt-2">
     Create an account to save your progress!
     </p>
   </div>
