@@ -233,7 +233,7 @@ function AlignMyNextLanding({ onGuest, onSignIn }) {
 
  {/* Explainer — all bold */}
 <div className="rounded-2xl border border-white/30 bg-white/25 backdrop-blur-md p-6 shadow-[0_8px_30px_rgba(0,0,0,.06)] text-center">
-  <p className="text-sm md:text-[15px] font-semibold text-slate-800 leading-relaxed">
+  <p className="text-sm md:text-[12px] font-semibold text-slate-800 leading-relaxed">
     Rate schools based on your priorities and watch a live, weighted ranking update in real time.
   </p>
 
