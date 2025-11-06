@@ -222,9 +222,10 @@ function AlignMyNextLanding({ onGuest, onSignIn }) {
       <div className="w-full max-w-md rounded-3xl border border-white/20 bg-white/20 backdrop-blur-xl shadow-2xl p-6 md:p-8 space-y-6">
         {/* title */}
         <div className="text-center space-y-4">
-  <h1 className="text-4xl font-extrabold tracking-tight rainbow-text">
+  <h1 className="font-heading text-4xl font-extrabold tracking-tight rainbow-text">
     AlignMyNext
   </h1>
+
 
   <p className="text-sm rainbow-text">
     Where Data Meets Destiny
