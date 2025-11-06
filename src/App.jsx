@@ -374,6 +374,7 @@ export default function DentalRankingApp() {
   });
   const [addError, setAddError] = useState("");
   const [raterOpen, setRaterOpen] = useState(false);
+  const [resetOpen, setResetOpen] = useState(false);
 
   // cloud
   const [user, setUser] = useState(null);
@@ -452,6 +453,17 @@ export default function DentalRankingApp() {
     return () => clearTimeout(t);
   }, [user, recordId, schools, weights, enabledCriteriaKeys, rainbowMode]);
 
+  // --- listen for password-recovery redirect from Supabase ---
+  useEffect(() => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setResetOpen(true);
+      }
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  
   // 5. derived
   const ACTIVE = useMemo(
     () => ALL_CRITERIA.filter((c) => enabledCriteriaKeys.includes(c.key)),
