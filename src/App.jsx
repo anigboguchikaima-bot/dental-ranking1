@@ -231,21 +231,15 @@ function AlignMyNextLanding({ onGuest, onSignIn }) {
     Where Data Meets Destiny
   </p>
 
-  {/* Explainer — Accent Border */}
-  <div className="rounded-2xl bg-white/25 backdrop-blur-md p-6 shadow-[0_8px_30px_rgba(0,0,0,.07)] relative">
-    <div className="absolute inset-0 rounded-2xl pointer-events-none ring-1 ring-white/40" />
-    <h2 className="text-2xl md:text-3xl font-extrabold leading-tight mb-2">
-      <span className="bg-clip-text text-transparent bg-[conic-gradient(from_0deg_at_50%_50%,#ef4444,#f59e0b,#84cc16,#06b6d4,#8b5cf6,#ef4444)]">
-        AlignMyNext
-      </span>
-    </h2>
+  {/* Explainer — refined */}
+<div className="rounded-2xl border border-white/30 bg-white/25 backdrop-blur-md p-5 md:p-6 shadow-[0_8px_30px_rgba(0,0,0,.06)] text-center">
+  <p className="text-sm md:text-[15px] text-slate-800/90 leading-relaxed">
+    <strong>Rate</strong> schools based on your <strong>priorities</strong> and
+    watch a live, <strong>weighted ranking</strong> update in real time.
+  </p>
 
-    <p className="text-[14px] md:text-[15px] leading-relaxed text-slate-900/90">
-      Rate schools by your priorities and get a live, weighted ranking—simple and fast.
-    </p>
-
-    <p className="mt-3 text-xs md:text-sm text-slate-600 italic">
-      Create an account to begin your journey!
+  <p className="mt-3 text-xs md:text-sm text-slate-600 italic">
+    Create an account to begin your journey!
     </p>
   </div>
 </div>
