@@ -231,14 +231,13 @@ function AlignMyNextLanding({ onGuest, onSignIn }) {
     Where Data Meets Destiny
   </p>
 
-  {/* Explainer — refined */}
-<div className="rounded-2xl border border-white/30 bg-white/25 backdrop-blur-md p-5 md:p-6 shadow-[0_8px_30px_rgba(0,0,0,.06)] text-center">
-  <p className="text-sm md:text-[15px] text-slate-800/90 leading-relaxed">
-    <strong>Rate</strong> schools based on your <strong>priorities</strong> and
-    watch a live, <strong>weighted ranking</strong> update in real time.
+ {/* Explainer — all bold */}
+<div className="rounded-2xl border border-white/30 bg-white/25 backdrop-blur-md p-6 shadow-[0_8px_30px_rgba(0,0,0,.06)] text-center">
+  <p className="text-sm md:text-[15px] font-semibold text-slate-800 leading-relaxed">
+    Rate schools based on your priorities and watch a live, weighted ranking update in real time.
   </p>
 
-  <p className="mt-3 text-xs md:text-sm text-slate-600 italic">
+  <p className="mt-3 text-xs md:text-sm font-semibold text-slate-600 italic">
     Create an account to begin your journey!
     </p>
   </div>
