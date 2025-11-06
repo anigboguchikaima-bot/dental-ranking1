@@ -238,7 +238,7 @@ function AlignMyNextLanding({ onGuest, onSignIn }) {
   </p>
 
   <p className="mt-3 text-xs md:text-sm font-semibold text-slate-600 italic">
-    Create an account to begin your journey!
+    Create an account to save your progress!
     </p>
   </div>
 </div>
