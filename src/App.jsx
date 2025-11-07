@@ -169,6 +169,8 @@ function AlignMyNextLanding({ onGuest, onSignIn }) {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState("");
   const [showHelp, setShowHelp] = React.useState(false);
+  const [forgotOpen, setForgotOpen] = React.useState(false); // ADD
+
 
 
   async function handleSignIn(e) {
@@ -296,6 +298,15 @@ function AlignMyNextLanding({ onGuest, onSignIn }) {
               placeholder="••••••••"
             />
           </div>
+          
+          <button
+            type="button"
+            onClick={() => setForgotOpen(true)}
+            className="text-xs text-slate-600 hover:underline"
+          >
+            Forgot your password?
+          </button>
+
           {error && (
             <div className="text-xs text-rose-100 bg-rose-500/30 border border-rose-200/60 rounded-xl px-3 py-2">
               {error}
@@ -319,6 +330,7 @@ function AlignMyNextLanding({ onGuest, onSignIn }) {
         <p className="text-[10px] rainbow-text text-center">
           Or continue as guest – data will be saved to this browser only.
         </p>
+        {forgotOpen && <ForgotPasswordModal onClose={() => setForgotOpen(false)} />}
       </div>
     </div>
   );
@@ -463,7 +475,14 @@ export default function DentalRankingApp() {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  
+  useEffect(() => {
+    const h = window.location.hash || "";
+    const q = window.location.search || "";
+    if (h.includes("type=recovery") || q.includes("type=recovery") || window.location.pathname === "/reset") {
+      setResetOpen(true);
+    }
+  }, []);
+
   // 5. derived
   const ACTIVE = useMemo(
     () => ALL_CRITERIA.filter((c) => enabledCriteriaKeys.includes(c.key)),
@@ -636,14 +655,15 @@ export default function DentalRankingApp() {
     "bg-[radial-gradient(1200px_600px_at_0%_0%,#fff0,rgba(255,0,122,0.12)),radial-gradient(900px_600px_at_100%_0%,#fff0,rgba(0,200,255,0.12)),radial-gradient(900px_600px_at_100%_100%,#fff0,rgba(0,255,150,0.12)),radial-gradient(900px_600px_at_0%_100%,#fff0,rgba(255,170,0,0.12))]";
 
   // 7. auth gate
-  if (!session && !guestMode) {
-    return (
-      <AlignMyNextLanding
-        onGuest={continueAsGuest}
-        onSignIn={onSignedIn}
-      />
-    );
-  }
+if (!session && !guestMode) {
+  return (
+    <>
+      <AlignMyNextLanding onGuest={continueAsGuest} onSignIn={onSignedIn} />
+      {resetOpen && <ResetPasswordModal onClose={() => setResetOpen(false)} />}
+    </>
+  );
+}
+
 
   // 8. MAIN RENDER (everything in one return)
   return (
@@ -1247,11 +1267,142 @@ export default function DentalRankingApp() {
       </div>
 
       <InternalChecks />
+      
+      {resetOpen && (
+        <ResetPasswordModal onClose={() => setResetOpen(false)} />
+      )}
     </div>
   );
 }
 
 /* -------------------- SMALL COMPONENTS -------------------- */
+
+function ForgotPasswordModal({ onClose }) {
+  const [email, setEmail] = useState("");
+  const [msg, setMsg] = useState("");
+
+  async function sendReset(e) {
+    e.preventDefault();
+    setMsg("");
+    if (!email) return setMsg("Please enter your email.");
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset`,
+    });
+
+    if (error) setMsg(error.message);
+    else setMsg("Check your inbox for a reset link.");
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+      <form
+        onSubmit={sendReset}
+        className="bg-white rounded-3xl w-full max-w-sm p-6 space-y-4 shadow-xl"
+      >
+        <h3 className="text-lg font-semibold">Reset your password</h3>
+        {msg && <div className="text-sm text-slate-700">{msg}</div>}
+
+        <label className="block text-sm">
+          Email
+          <input
+            type="email"
+            className="mt-1 w-full border rounded-xl px-3 py-2"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </label>
+
+        <button
+          type="submit"
+          className="w-full rounded-xl px-3 py-2 text-white bg-[linear-gradient(90deg,#ff80b5,#9089fc)]"
+        >
+          Send reset link
+        </button>
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="w-full text-sm text-slate-600 hover:underline"
+        >
+          Cancel
+        </button>
+      </form>
+    </div>
+  );
+}
+
+
+function ResetPasswordModal({ onClose }) {
+  const [p1, setP1] = useState("");
+  const [p2, setP2] = useState("");
+  const [msg, setMsg] = useState("");
+
+  async function submitNewPassword(e) {
+    e.preventDefault();
+    setMsg("");
+
+    if (p1.length < 6) return setMsg("Password must be at least 6 characters.");
+    if (p1 !== p2) return setMsg("Passwords do not match.");
+
+    const { error } = await supabase.auth.updateUser({ password: p1 });
+    if (error) setMsg(error.message);
+    else {
+      setMsg("Password updated. You can close this window.");
+      setTimeout(() => onClose(), 1200);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+      <form
+        onSubmit={submitNewPassword}
+        className="bg-white rounded-3xl w-full max-w-sm p-6 space-y-4 shadow-xl"
+      >
+        <h3 className="text-lg font-semibold">Set a new password</h3>
+        {msg && <div className="text-sm text-slate-700">{msg}</div>}
+
+        <label className="block text-sm">
+          New password
+          <input
+            type="password"
+            className="mt-1 w-full border rounded-xl px-3 py-2"
+            value={p1}
+            onChange={(e) => setP1(e.target.value)}
+            required
+          />
+        </label>
+
+        <label className="block text-sm">
+          Confirm new password
+          <input
+            type="password"
+            className="mt-1 w-full border rounded-xl px-3 py-2"
+            value={p2}
+            onChange={(e) => setP2(e.target.value)}
+            required
+          />
+        </label>
+
+        <button
+          type="submit"
+          className="w-full rounded-xl px-3 py-2 text-white bg-[linear-gradient(90deg,#ff80b5,#9089fc)]"
+        >
+          Save password
+        </button>
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="w-full text-sm text-slate-600 hover:underline"
+        >
+          Cancel
+        </button>
+      </form>
+    </div>
+  );
+}
 
 function InlineEdit({ value, onChange, placeholder }) {
   const [v, setV] = useState(value ?? "");
