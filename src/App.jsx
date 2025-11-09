@@ -1093,15 +1093,6 @@ if (!session && !guestMode) {
           >
             Cancel
           </button>
-          {/* Add & stay */}
-          <button
-            disabled={selectedKeys.size === 0}
-            className="rounded-2xl px-4 py-2 text-white bg-[linear-gradient(90deg,#34d399,#60a5fa)] disabled:opacity-50"
-            onClick={() => addSelectedSchools(false)}
-            title="Add selected and keep picking"
-          >
-            Add {selectedKeys.size > 0 ? `(${selectedKeys.size})` : ""}
-          </button>
           {/* Add & close */}
           <button
             disabled={selectedKeys.size === 0}
