@@ -772,7 +772,7 @@ if (!session && !guestMode) {
       {/* main grid */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* weights panel */}
-        <div className="xl:col-span-1 rounded-3xl shadow-sm border-2 border-rose-100 bg-white/90 backdrop-blur p-6 space-y-5">
+        <div className="order-2 xl:order-1 xl:col-span-1 rounded-3xl shadow-sm border-2 border-rose-100 bg-white/90 backdrop-blur p-6 space-y-5">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold">Weights ({totalWeight})</h2>
             <button
@@ -936,7 +936,7 @@ if (!session && !guestMode) {
         </div>
 
         {/* table + editors */}
-        <div className="xl:col-span-2 rounded-3xl shadow-sm border-2 border-sky-100 bg-white/90 backdrop-blur p-6 space-y-4">
+        <div className="order-1 xl:order-2 xl:col-span-2 rounded-3xl shadow-sm border-2 border-sky-100 bg-white/90 backdrop-blur p-6 space-y-4">
           <div className="inline-flex rounded-2xl border overflow-hidden">
             <button
               onClick={() => setActiveTab("data")}
