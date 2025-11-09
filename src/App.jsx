@@ -23,6 +23,2286 @@ import { supabase } from "./supabaseClient"; // ← must be up here
 /* -------------------- CONSTANTS / HELPERS (OUTSIDE COMPONENT) -------------------- */
 
 /* -------------------- SCHOOL BANK -------------------- */
+
+const MED_SCHOOLS = [
+  {
+    "key": "university-of-alabama-at-birmingham-marnix-e-heersink-school-of-medicine",
+    "name": "University of Alabama at Birmingham Marnix E. Heersink School of Medicine",
+    "city": "Birmingham",
+    "state": "Alabama"
+  },
+  {
+    "key": "frederick-p-whiddon-college-of-medicine-at-the-university-of-south-alabama",
+    "name": "Frederick P. Whiddon College of Medicine at the University of South Alabama",
+    "city": "Mobile",
+    "state": "Alabama"
+  },
+  {
+    "key": "university-of-arizona-college-of-medicine-phoenix",
+    "name": "University of Arizona College of Medicine - Phoenix",
+    "city": "Phoenix",
+    "state": "Arizona"
+  },
+  {
+    "key": "university-of-arizona-college-of-medicine-tucson",
+    "name": "University of Arizona College of Medicine - Tucson",
+    "city": "Tucson",
+    "state": "Arizona"
+  },
+  {
+    "key": "alice-l-walton-school-of-medicine",
+    "name": "Alice L. Walton School of Medicine",
+    "city": "Bentonville",
+    "state": "Arkansas"
+  },
+  {
+    "key": "university-of-arkansas-for-medical-sciences-college-of-medicine",
+    "name": "University of Arkansas for Medical Sciences College of Medicine",
+    "city": "Little Rock",
+    "state": "Arkansas"
+  },
+  {
+    "key": "california-northstate-university-college-of-medicine",
+    "name": "California Northstate University College of Medicine",
+    "city": "Elk Grove",
+    "state": "California"
+  },
+  {
+    "key": "california-university-of-science-and-medicine-school-of-medicine",
+    "name": "California University of Science and Medicine - School of Medicine",
+    "city": "Colton",
+    "state": "California"
+  },
+  {
+    "key": "charles-r-drew-university-of-medicine-and-science-college-of-medicine",
+    "name": "Charles R. Drew University of Medicine and Science College of Medicine",
+    "city": "Los Angeles",
+    "state": "California"
+  },
+  {
+    "key": "david-geffen-school-of-medicine-at-ucla",
+    "name": "David Geffen School of Medicine at UCLA",
+    "city": "Los Angeles",
+    "state": "California"
+  },
+  {
+    "key": "kaiser-permanente-bernard-j-tyson-school-of-medicine",
+    "name": "Kaiser Permanente Bernard J. Tyson School of Medicine",
+    "city": "Pasadena",
+    "state": "California"
+  },
+  {
+    "key": "keck-school-of-medicine-of-the-university-of-southern-california",
+    "name": "Keck School of Medicine of the University of Southern California",
+    "city": "Los Angeles",
+    "state": "California"
+  },
+  {
+    "key": "loma-linda-university-school-of-medicine",
+    "name": "Loma Linda University School of Medicine",
+    "city": "Loma Linda",
+    "state": "California"
+  },
+  {
+    "key": "stanford-university-school-of-medicine",
+    "name": "Stanford University School of Medicine",
+    "city": "Palo Alto",
+    "state": "California"
+  },
+  {
+    "key": "university-of-california-davis-school-of-medicine",
+    "name": "University of California, Davis School of Medicine",
+    "city": "Davis",
+    "state": "California"
+  },
+  {
+    "key": "university-of-california-irvine-school-of-medicine",
+    "name": "University of California, Irvine School of Medicine",
+    "city": "Irvine",
+    "state": "California"
+  },
+  {
+    "key": "university-of-california-riverside-school-of-medicine",
+    "name": "University of California, Riverside School of Medicine",
+    "city": "Riverside",
+    "state": "California"
+  },
+  {
+    "key": "university-of-california-san-diego-school-of-medicine",
+    "name": "University of California, San Diego School of Medicine",
+    "city": "San Diego",
+    "state": "California"
+  },
+  {
+    "key": "university-of-california-san-francisco-school-of-medicine",
+    "name": "University of California, San Francisco School of Medicine",
+    "city": "San Francisco",
+    "state": "California"
+  },
+  {
+    "key": "university-of-colorado-school-of-medicine",
+    "name": "University of Colorado School of Medicine",
+    "city": "Denver",
+    "state": "Colorado"
+  },
+  {
+    "key": "frank-h-netter-md-school-of-medicine-at-quinnipiac-university",
+    "name": "Frank H. Netter MD School of Medicine at Quinnipiac University",
+    "city": "North Haven",
+    "state": "Connecticut"
+  },
+  {
+    "key": "university-of-connecticut-school-of-medicine",
+    "name": "University of Connecticut School of Medicine",
+    "city": "Farmington",
+    "state": "Connecticut"
+  },
+  {
+    "key": "yale-school-of-medicine",
+    "name": "Yale School of Medicine",
+    "city": "New Haven",
+    "state": "Connecticut"
+  },
+  {
+    "key": "george-washington-university-school-of-medicine-and-health-sciences",
+    "name": "George Washington University School of Medicine and Health Sciences",
+    "city": "Washington",
+    "state": "District of Columbia"
+  },
+  {
+    "key": "georgetown-university-school-of-medicine",
+    "name": "Georgetown University School of Medicine",
+    "city": "Washington",
+    "state": "District of Columbia"
+  },
+  {
+    "key": "howard-university-college-of-medicine",
+    "name": "Howard University College of Medicine",
+    "city": "Washington",
+    "state": "District of Columbia"
+  },
+  {
+    "key": "charles-e-schmidt-college-of-medicine-at-florida-atlantic-university",
+    "name": "Charles E. Schmidt College of Medicine at Florida Atlantic University",
+    "city": "Boca Raton",
+    "state": "Florida"
+  },
+  {
+    "key": "florida-international-university-herbert-wertheim-college-of-medicine",
+    "name": "Florida International University Herbert Wertheim College of Medicine",
+    "city": "Miami",
+    "state": "Florida"
+  },
+  {
+    "key": "florida-state-university-college-of-medicine",
+    "name": "Florida State University College of Medicine",
+    "city": "Tallahassee",
+    "state": "Florida"
+  },
+  {
+    "key": "nova-southeastern-university-dr-kiran-c-patel-college-of-allopathic-medicine",
+    "name": "Nova Southeastern University Dr. Kiran C. Patel College of Allopathic Medicine",
+    "city": "Fort Lauderdale",
+    "state": "Florida"
+  },
+  {
+    "key": "university-of-central-florida-college-of-medicine",
+    "name": "University of Central Florida College of Medicine",
+    "city": "Orlando",
+    "state": "Florida"
+  },
+  {
+    "key": "university-of-florida-college-of-medicine",
+    "name": "University of Florida College of Medicine",
+    "city": "Gainesville",
+    "state": "Florida"
+  },
+  {
+    "key": "university-of-miami-leonard-m-miller-school-of-medicine",
+    "name": "University of Miami Leonard M. Miller School of Medicine",
+    "city": "Miami",
+    "state": "Florida"
+  },
+  {
+    "key": "usf-health-morsani-college-of-medicine",
+    "name": "USF Health Morsani College of Medicine",
+    "city": "Tampa",
+    "state": "Florida"
+  },
+  {
+    "key": "emory-university-school-of-medicine",
+    "name": "Emory University School of Medicine",
+    "city": "Atlanta",
+    "state": "Georgia"
+  },
+  {
+    "key": "medical-college-of-georgia-at-augusta-university",
+    "name": "Medical College of Georgia at Augusta University",
+    "city": "Augusta",
+    "state": "Georgia"
+  },
+  {
+    "key": "mercer-university-school-of-medicine",
+    "name": "Mercer University School of Medicine",
+    "city": "Macon",
+    "state": "Georgia"
+  },
+  {
+    "key": "morehouse-school-of-medicine",
+    "name": "Morehouse School of Medicine",
+    "city": "Atlanta",
+    "state": "Georgia"
+  },
+  {
+    "key": "john-a-burns-school-of-medicine-university-of-hawaii-at-manoa",
+    "name": "John A. Burns School of Medicine University of Hawaii at Manoa",
+    "city": "Honolulu",
+    "state": "Hawaii"
+  },
+  {
+    "key": "carle-illinois-college-of-medicine",
+    "name": "Carle Illinois College of Medicine",
+    "city": "Urbana-Champaign",
+    "state": "Illinois"
+  },
+  {
+    "key": "chicago-medical-school-at-rosalind-franklin-university-of-medicine-and-science",
+    "name": "Chicago Medical School at Rosalind Franklin University of Medicine and Science",
+    "city": "North Chicago",
+    "state": "Illinois"
+  },
+  {
+    "key": "loyola-university-chicago-stritch-school-of-medicine",
+    "name": "Loyola University Chicago Stritch School of Medicine",
+    "city": "Maywood",
+    "state": "Illinois"
+  },
+  {
+    "key": "northwestern-university-feinberg-school-of-medicine",
+    "name": "Northwestern University Feinberg School of Medicine",
+    "city": "Chicago",
+    "state": "Illinois"
+  },
+  {
+    "key": "rush-medical-college-of-rush-university-medical-center",
+    "name": "Rush Medical College of Rush University Medical Center",
+    "city": "Chicago",
+    "state": "Illinois"
+  },
+  {
+    "key": "southern-illinois-university-school-of-medicine",
+    "name": "Southern Illinois University School of Medicine",
+    "city": "Springfield",
+    "state": "Illinois"
+  },
+  {
+    "key": "university-of-chicago-division-of-the-biological-sciences-the-pritzker-school-of-medicine",
+    "name": "University of Chicago Division of the Biological Sciences, The Pritzker School of Medicine",
+    "city": "Chicago",
+    "state": "Illinois"
+  },
+  {
+    "key": "university-of-illinois-college-of-medicine",
+    "name": "University of Illinois College of Medicine",
+    "city": "Chicago",
+    "state": "Illinois"
+  },
+  {
+    "key": "indiana-university-school-of-medicine",
+    "name": "Indiana University School of Medicine",
+    "city": "Indianapolis",
+    "state": "Indiana"
+  },
+  {
+    "key": "university-of-iowa-roy-j-and-lucille-a-carver-college-of-medicine",
+    "name": "University of Iowa Roy J. and Lucille A. Carver College of Medicine",
+    "city": "Iowa City",
+    "state": "Iowa"
+  },
+  {
+    "key": "university-of-kansas-school-of-medicine",
+    "name": "University of Kansas School of Medicine",
+    "city": "Kansas City",
+    "state": "Kansas"
+  },
+  {
+    "key": "university-of-kentucky-college-of-medicine",
+    "name": "University of Kentucky College of Medicine",
+    "city": "Lexington",
+    "state": "Kentucky"
+  },
+  {
+    "key": "university-of-louisville-school-of-medicine",
+    "name": "University of Louisville School of Medicine",
+    "city": "Louisville",
+    "state": "Kentucky"
+  },
+  {
+    "key": "louisiana-state-university-school-of-medicine-in-shreveport",
+    "name": "Louisiana State University School of Medicine in Shreveport",
+    "city": "Shreveport",
+    "state": "Louisiana"
+  },
+  {
+    "key": "lsu-health-sciences-center-school-of-medicine-in-new-orleans",
+    "name": "LSU Health Sciences Center School of Medicine in New Orleans",
+    "city": "New Orleans",
+    "state": "Louisiana"
+  },
+  {
+    "key": "tulane-university-school-of-medicine",
+    "name": "Tulane University School of Medicine",
+    "city": "New Orleans",
+    "state": "Louisiana"
+  },
+  {
+    "key": "johns-hopkins-university-school-of-medicine",
+    "name": "Johns Hopkins University School of Medicine",
+    "city": "Baltimore",
+    "state": "Maryland"
+  },
+  {
+    "key": "uniformed-services-university",
+    "name": "Uniformed Services University ...",
+    "city": "Bethesda",
+    "state": "Maryland"
+  },
+  {
+    "key": "university-of-maryland-school-of-medicine",
+    "name": "University of Maryland School of Medicine",
+    "city": "Baltimore",
+    "state": "Maryland"
+  },
+  {
+    "key": "boston-university-school-of-medicine",
+    "name": "Boston University ... School of Medicine",
+    "city": "Boston",
+    "state": "Massachusetts"
+  },
+  {
+    "key": "harvard-medical-school",
+    "name": "Harvard Medical School",
+    "city": "Boston",
+    "state": "Massachusetts"
+  },
+  {
+    "key": "tufts-university-school-of-medicine",
+    "name": "Tufts University School of Medicine",
+    "city": "Boston",
+    "state": "Massachusetts"
+  },
+  {
+    "key": "university-of-massachusetts-t-h-chan-school-of-medicine",
+    "name": "University of Massachusetts T.H. Chan School of Medicine",
+    "city": "Worcester",
+    "state": "Massachusetts"
+  },
+  {
+    "key": "central-michigan-university-college-of-medicine",
+    "name": "Central Michigan University College of Medicine",
+    "city": "Mount Pleasant",
+    "state": "Michigan"
+  },
+  {
+    "key": "michigan-state-university-college-of-human-medicine",
+    "name": "Michigan State University College of Human Medicine",
+    "city": "East Lansing",
+    "state": "Michigan"
+  },
+  {
+    "key": "oakland-university-william-beaumont-school-of-medicine",
+    "name": "Oakland University William Beaumont School of Medicine",
+    "city": "Rochester",
+    "state": "Michigan"
+  },
+  {
+    "key": "university-of-michigan-medical-school",
+    "name": "University of Michigan Medical School",
+    "city": "Ann Arbor",
+    "state": "Michigan"
+  },
+  {
+    "key": "wayne-state-university-school-of-medicine",
+    "name": "Wayne State University School of Medicine",
+    "city": "Detroit",
+    "state": "Michigan"
+  },
+  {
+    "key": "western-michigan-university-homer-stryker-m-d-school-of-medicine",
+    "name": "Western Michigan University Homer Stryker M.D. School of Medicine",
+    "city": "Kalamazoo",
+    "state": "Michigan"
+  },
+  {
+    "key": "mayo-clinic-alix-school-of-medicine",
+    "name": "Mayo Clinic Alix School of Medicine",
+    "city": "Rochester",
+    "state": "Minnesota"
+  },
+  {
+    "key": "university-of-minnesota-medical-school",
+    "name": "University of Minnesota Medical School",
+    "city": "Minneapolis",
+    "state": "Minnesota"
+  },
+  {
+    "key": "university-of-mississippi-school-of-medicine",
+    "name": "University of Mississippi School of Medicine",
+    "city": "Jackson",
+    "state": "Mississippi"
+  },
+  {
+    "key": "saint-louis-university-school-of-medicine",
+    "name": "Saint Louis University School of Medicine",
+    "city": "St. Louis",
+    "state": "Missouri"
+  },
+  {
+    "key": "university-of-missouri-columbia-school-of-medicine",
+    "name": "University of Missouri-Columbia School of Medicine",
+    "city": "Columbia",
+    "state": "Missouri"
+  },
+  {
+    "key": "university-of-missouri-kansas-city-school-of-medicine",
+    "name": "University of Missouri-Kansas City School of Medicine",
+    "city": "Kansas City",
+    "state": "Missouri"
+  },
+  {
+    "key": "washington-university-in-st-louis-school-of-medicine",
+    "name": "Washington University in St. Louis School of Medicine",
+    "city": "St. Louis",
+    "state": "Missouri"
+  },
+  {
+    "key": "creighton-university-school-of-medicine",
+    "name": "Creighton University School of Medicine",
+    "city": "Omaha",
+    "state": "Nebraska"
+  },
+  {
+    "key": "university-of-nebraska-college-of-medicine",
+    "name": "University of Nebraska College of Medicine",
+    "city": "Omaha",
+    "state": "Nebraska"
+  },
+  {
+    "key": "kirk-kerkorian-school-of-medicine-at-unlv",
+    "name": "Kirk Kerkorian School of Medicine at UNLV",
+    "city": "Las Vegas",
+    "state": "Nevada"
+  },
+  {
+    "key": "roseman-university-college-of-medicine",
+    "name": "Roseman University College of Medicine",
+    "city": "Las Vegas",
+    "state": "Nevada"
+  },
+  {
+    "key": "university-of-nevada-reno-school-of-medicine",
+    "name": "University of Nevada, Reno School of Medicine",
+    "city": "Reno",
+    "state": "Nevada"
+  },
+  {
+    "key": "geisel-school-of-medicine-at-dartmouth",
+    "name": "Geisel School of Medicine at Dartmouth",
+    "city": "Hanover",
+    "state": "New Hampshire"
+  },
+  {
+    "key": "cooper-medical-school-of-rowan-university",
+    "name": "Cooper Medical School of Rowan University",
+    "city": "Camden",
+    "state": "New Jersey"
+  },
+  {
+    "key": "hackensack-meridian-school-of-medicine",
+    "name": "Hackensack Meridian School of Medicine",
+    "city": "Nutley",
+    "state": "New Jersey"
+  },
+  {
+    "key": "rutgers-new-jersey-medical-school",
+    "name": "Rutgers New Jersey Medical School",
+    "city": "Newark",
+    "state": "New Jersey"
+  },
+  {
+    "key": "rutgers-robert-wood-johnson-medical-school",
+    "name": "Rutgers, Robert Wood Johnson Medical School",
+    "city": "Piscataway",
+    "state": "New Jersey"
+  },
+  {
+    "key": "university-of-new-mexico-school-of-medicine",
+    "name": "University of New Mexico School of Medicine",
+    "city": "Albuquerque",
+    "state": "New Mexico"
+  },
+  {
+    "key": "albany-medical-college",
+    "name": "Albany Medical College",
+    "city": "Albany",
+    "state": "New York"
+  },
+  {
+    "key": "albert-einstein-college-of-medicine",
+    "name": "Albert Einstein College of Medicine",
+    "city": "New York",
+    "state": "New York"
+  },
+  {
+    "key": "columbia-university-vagelos-college-of-physicians-and-surgeons",
+    "name": "Columbia University Vagelos College of Physicians and Surgeons",
+    "city": "New York",
+    "state": "New York"
+  },
+  {
+    "key": "cuny-school-of-medicine",
+    "name": "CUNY School of Medicine",
+    "city": "New York",
+    "state": "New York"
+  },
+  {
+    "key": "donald-and-barbara-zucker-school",
+    "name": "Donald and Barbara Zucker School ...",
+    "city": "Hempstead",
+    "state": "New York"
+  },
+  {
+    "key": "icahn-school-of-medicine-at-mount-sinai",
+    "name": "Icahn School of Medicine at Mount Sinai",
+    "city": "New York",
+    "state": "New York"
+  },
+  {
+    "key": "jacobs-school-of-medicine-at-buffalo",
+    "name": "Jacobs School of Medicine at Buffalo",
+    "city": "Buffalo",
+    "state": "New York"
+  },
+  {
+    "key": "new-york-medical-college",
+    "name": "New York Medical College",
+    "city": "Valhalla",
+    "state": "New York"
+  },
+  {
+    "key": "nyu-grossman-school-of-medicine",
+    "name": "NYU Grossman School of Medicine",
+    "city": "New York",
+    "state": "New York"
+  },
+  {
+    "key": "nyu-grossman-long-island-school-of-medicine",
+    "name": "NYU Grossman Long Island School of Medicine",
+    "city": "Mineola",
+    "state": "New York"
+  },
+  {
+    "key": "renaissance-school-of-medicine-at-stony-brook-university",
+    "name": "Renaissance School of Medicine at Stony Brook University",
+    "city": "Stony Brook",
+    "state": "New York"
+  },
+  {
+    "key": "suny-upstate-medical-university",
+    "name": "SUNY Upstate Medical University",
+    "city": "Syracuse",
+    "state": "New York"
+  },
+  {
+    "key": "suny-downstate-health-sciences-university-college-of-medicine",
+    "name": "SUNY Downstate Health Sciences University College of Medicine",
+    "city": "Brooklyn",
+    "state": "New York"
+  },
+  {
+    "key": "university-of-rochester-school-of-medicine-and-dentistry",
+    "name": "University of Rochester School of Medicine and Dentistry",
+    "city": "Rochester",
+    "state": "New York"
+  },
+  {
+    "key": "weill-cornell-medicine",
+    "name": "Weill Cornell Medicine",
+    "city": "New York",
+    "state": "New York"
+  },
+  {
+    "key": "brody-school-of-medicine-at-east-carolina-university",
+    "name": "Brody School of Medicine at East Carolina University",
+    "city": "Greenville",
+    "state": "North Carolina"
+  },
+  {
+    "key": "duke-university-school-of-medicine",
+    "name": "Duke University School of Medicine",
+    "city": "Durham",
+    "state": "North Carolina"
+  },
+  {
+    "key": "university-of-north-carolina-school-of-medicine",
+    "name": "University of North Carolina School of Medicine",
+    "city": "Chapel Hill",
+    "state": "North Carolina"
+  },
+  {
+    "key": "wake-forest-university-school-of-medicine",
+    "name": "Wake Forest University School of Medicine",
+    "city": "Winston-Salem",
+    "state": "North Carolina"
+  },
+  {
+    "key": "university-of-north-dakota-school-of-medicine-and-health-sciences",
+    "name": "University of North Dakota School of Medicine and Health Sciences",
+    "city": "Grand Forks",
+    "state": "North Dakota"
+  },
+  {
+    "key": "boonshoft-school-of-medicine-wright-state-university",
+    "name": "Boonshoft School of Medicine Wright State University",
+    "city": "Dayton",
+    "state": "Ohio"
+  },
+  {
+    "key": "case-western-reserve-university-school-of-medicine",
+    "name": "Case Western Reserve University School of Medicine",
+    "city": "Cleveland",
+    "state": "Ohio"
+  },
+  {
+    "key": "northeast-ohio-medical-university",
+    "name": "Northeast Ohio Medical University",
+    "city": "Rootstown",
+    "state": "Ohio"
+  },
+  {
+    "key": "alabama-college-of-osteopathic-medicine-acom",
+    "name": "Alabama College of Osteopathic Medicine (ACOM)",
+    "city": "Dothan",
+    "state": "AL"
+  },
+  {
+    "key": "arkansas-college-of-osteopathic-medicine-arcom",
+    "name": "Arkansas College of Osteopathic Medicine (ARCOM)",
+    "city": "Fort Smith",
+    "state": "AR"
+  },
+  {
+    "key": "at-still-university-kirksville-college-of-osteopathic-medicine-atsu-kcom",
+    "name": "A.T. Still University Kirksville College of Osteopathic Medicine (ATSU-KCOM)",
+    "city": "Kirksville",
+    "state": "MO"
+  },
+  {
+    "key": "at-still-university-school-of-osteopathic-medicine-in-arizona-atsu-soma",
+    "name": "A.T. Still University, School of Osteopathic Medicine in Arizona (ATSU-SOMA)",
+    "city": "Mesa",
+    "state": "AZ"
+  },
+  {
+    "key": "burrell-college-of-osteopathic-medicine-bcom",
+    "name": "Burrell College of Osteopathic Medicine (BCOM)",
+    "city": "Las Cruces",
+    "state": "NM"
+  },
+  {
+    "key": "burrell-college-of-osteopathic-medicine-florida-bcom-fl",
+    "name": "Burrell College of Osteopathic Medicine, Florida (BCOM-FL)",
+    "city": "Tampa",
+    "state": "FL"
+  },
+  {
+    "key": "baptist-health-sciences-university-college-of-osteopathic-medicine-bucom",
+    "name": "Baptist Health Sciences University College of Osteopathic Medicine (BUCOM)",
+    "city": "Memphis",
+    "state": "TN"
+  },
+  {
+    "key": "california-health-sciences-university-college-of-osteopathic-medicine-chsu-com",
+    "name": "California Health Sciences University College of Osteopathic Medicine (CHSU-COM)",
+    "city": "Clovis",
+    "state": "CA"
+  },
+  {
+    "key": "campbell-university-jerry-m-wallace-school-of-osteopathic-medicine-cusom",
+    "name": "Campbell University Jerry M. Wallace School of Osteopathic Medicine (CUSOM)",
+    "city": "Lillington",
+    "state": "NC"
+  },
+  {
+    "key": "des-moines-university-college-of-osteopathic-medicine-dmu-com",
+    "name": "Des Moines University College of Osteopathic Medicine (DMU-COM)",
+    "city": "Des Moines",
+    "state": "IA"
+  },
+  {
+    "key": "duquesne-university-college-of-osteopathic-medicine-duqcom",
+    "name": "Duquesne University College of Osteopathic Medicine (DUQCOM)",
+    "city": "Pittsburgh",
+    "state": "PA"
+  },
+  {
+    "key": "edward-via-college-of-osteopathic-medicine-vcom---auburn-campus",
+    "name": "Edward Via College of Osteopathic Medicine (VCOM - Auburn Campus)",
+    "city": "Auburn",
+    "state": "AL"
+  },
+  {
+    "key": "edward-via-college-of-osteopathic-medicine-carolinas-campus-vcom---carolinas-campus",
+    "name": "Edward Via College of Osteopathic Medicine-Carolinas Campus (VCOM - Carolinas Campus)",
+    "city": "Spartanburg",
+    "state": "SC"
+  },
+  {
+    "key": "edward-via-college-of-osteopathic-medicine-louisiana-vcom-louisiana",
+    "name": "Edward Via College of Osteopathic Medicine-Louisiana (VCOM-Louisiana)",
+    "city": "Monroe",
+    "state": "LA"
+  },
+  {
+    "key": "edward-via-college-of-osteopathic-medicine-vcom-virginia-campus",
+    "name": "Edward Via College of Osteopathic Medicine (VCOM-Virginia Campus)",
+    "city": "Blacksburg",
+    "state": "VA"
+  },
+  {
+    "key": "idaho-college-of-osteopathic-medicine-icom",
+    "name": "Idaho College of Osteopathic Medicine (ICOM)",
+    "city": "Meridian",
+    "state": "ID"
+  },
+  {
+    "key": "kansas-health-sciences-center-kansas-college-of-osteopathic-medicine-kansascom",
+    "name": "Kansas Health Sciences Center Kansas College of Osteopathic Medicine (KansasCOM)",
+    "city": "Wichita",
+    "state": "KS"
+  },
+  {
+    "key": "kansas-city-university--kansas-city-kcu-com-kc",
+    "name": "Kansas City University \u2013 Kansas City (KCU-COM-KC)",
+    "city": "Kansas City",
+    "state": "MO"
+  },
+  {
+    "key": "kansas-city-university--joplin-kcu-com-joplin",
+    "name": "Kansas City University \u2013 Joplin (KCU-COM-Joplin)",
+    "city": "Joplin",
+    "state": "MO"
+  },
+  {
+    "key": "lake-erie-college-of-osteopathic-medicine-erie-lecom",
+    "name": "Lake Erie College of Osteopathic Medicine-Erie (LECOM)",
+    "city": "Erie",
+    "state": "PA"
+  },
+  {
+    "key": "lake-erie-college-of-osteopathic-medicine-bradenton-lecom-bradenton",
+    "name": "Lake Erie College of Osteopathic Medicine-Bradenton (LECOM-Bradenton)",
+    "city": "Bradenton",
+    "state": "FL"
+  },
+  {
+    "key": "lake-erie-college-of-osteopathic-medicine---elmira-lecom-elmira",
+    "name": "Lake Erie College of Osteopathic Medicine - Elmira (LECOM-Elmira)",
+    "city": "Elmira",
+    "state": "NY"
+  },
+  {
+    "key": "lake-erie-college-of-osteopathic-medicine---seton-hill-lecom-seton-hill",
+    "name": "Lake Erie College of Osteopathic Medicine - Seton Hill (LECOM-Seton Hill)",
+    "city": "Greensburg",
+    "state": "PA"
+  },
+  {
+    "key": "liberty-university-college-of-osteopathic-medicine-lucom",
+    "name": "Liberty University College of Osteopathic Medicine (LUCOM)",
+    "city": "Lynchburg",
+    "state": "VA"
+  },
+  {
+    "key": "lincoln-memorial-university-debusk-college-of-osteopathic-medicine-lmu-dcom",
+    "name": "Lincoln Memorial University-DeBusk College of Osteopathic Medicine (LMU-DCOM)",
+    "city": "Harrogate",
+    "state": "TN"
+  },
+  {
+    "key": "lincoln-memorial-university-debusk-college-of-osteopathic-medicine--knoxville-lmu-dcom-knoxville",
+    "name": "Lincoln Memorial University-DeBusk College of Osteopathic Medicine \u2013 Knoxville (LMU-DCOM Knoxville)",
+    "city": "Knoxville",
+    "state": "TN"
+  },
+  {
+    "key": "lincoln-memorial-university-debusk-college-of-osteopathic-medicine--orange-park-lmu-dcom-orange-park",
+    "name": "Lincoln Memorial University-DeBusk College of Osteopathic Medicine \u2013 Orange Park (LMU-DCOM Orange Park)",
+    "city": "Orange Park",
+    "state": "FL"
+  },
+  {
+    "key": "marian-university-tom-and-julie-wood-college-of-osteopathic-medicine-mu-wcom",
+    "name": "Marian University Tom and Julie Wood College of Osteopathic Medicine (MU-WCOM)",
+    "city": "Indianapolis",
+    "state": "IN"
+  },
+  {
+    "key": "meritus-school-of-osteopathic-medicine-msom",
+    "name": "Meritus School of Osteopathic Medicine (MSOM)",
+    "city": "Hagerstown",
+    "state": "MD"
+  },
+  {
+    "key": "michigan-state-university-college-of-osteopathic-medicine-msucom",
+    "name": "Michigan State University College of Osteopathic Medicine (MSUCOM)",
+    "city": "East Lansing",
+    "state": "MI"
+  },
+  {
+    "key": "michigan-state-university-college-of-osteopathic-medicine-msucom-dmc",
+    "name": "Michigan State University College of Osteopathic Medicine (MSUCOM-DMC)",
+    "city": "Detroit",
+    "state": "MI"
+  },
+  {
+    "key": "michigan-state-university-college-of-osteopathic-medicine-msucom-muc",
+    "name": "Michigan State University College of Osteopathic Medicine (MSUCOM-MUC)",
+    "city": "Clinton Township",
+    "state": "MI"
+  },
+  {
+    "key": "midwestern-university-arizona-college-of-osteopathic-medicine-mwu-azcom",
+    "name": "Midwestern University Arizona College of Osteopathic Medicine (MWU/AZCOM)",
+    "city": "Glendale",
+    "state": "AZ"
+  },
+  {
+    "key": "midwestern-university-chicago-college-of-osteopathic-medicine-mwu-ccom",
+    "name": "Midwestern University Chicago College of Osteopathic Medicine (MWU/CCOM)",
+    "city": "Downers Grove",
+    "state": "IL"
+  },
+  {
+    "key": "new-york-institute-of-technology-college-of-osteopathic-medicine-nyitcom",
+    "name": "New York Institute of Technology College of Osteopathic Medicine (NYITCOM)",
+    "city": "Old Westbury",
+    "state": "NY"
+  },
+  {
+    "key": "new-york-institute-of-technology-college-of-osteopathic-medicine-at-arkansas-state-nyitcom-arkansas",
+    "name": "New York Institute of Technology College of Osteopathic Medicine at Arkansas State (NYITCOM-Arkansas)",
+    "city": "Jonesboro",
+    "state": "AR"
+  },
+  {
+    "key": "noorda-college-of-osteopathic-medicine",
+    "name": "Noorda College of Osteopathic Medicine",
+    "city": "Provo",
+    "state": "UT"
+  },
+  {
+    "key": "nova-southeastern-university-dr-kiran-c-patel-college-of-osteopathic-medicine-nsu-kpcom",
+    "name": "Nova Southeastern University Dr. Kiran C. Patel College of Osteopathic Medicine (NSU-KPCOM)",
+    "city": "Davie",
+    "state": "FL"
+  },
+  {
+    "key": "nova-southeastern-university-dr-kiran-c-patel-college-of-osteopathic-medicine-nsu-kpcom-clearwater",
+    "name": "Nova Southeastern University Dr. Kiran C. Patel College of Osteopathic Medicine (NSU-KPCOM-Clearwater)",
+    "city": "Clearwater",
+    "state": "FL"
+  },
+  {
+    "key": "ohio-university-heritage-college-of-osteopathic-medicine-ou-hcom",
+    "name": "Ohio University Heritage College of Osteopathic Medicine (OU-HCOM)",
+    "city": "Athens",
+    "state": "OH"
+  },
+  {
+    "key": "ohio-university-heritage-college-of-osteopathic-medicine-in-cleveland-ou-hcom-cleveland",
+    "name": "Ohio University Heritage College of Osteopathic Medicine in Cleveland (OU-HCOM-Cleveland)",
+    "city": "Cleveland",
+    "state": "OH"
+  },
+  {
+    "key": "ohio-university-heritage-college-of-osteopathic-medicine-in-dublin-ou-hcom-dublin",
+    "name": "Ohio University Heritage College of Osteopathic Medicine in Dublin (OU-HCOM-Dublin)",
+    "city": "Dublin",
+    "state": "OH"
+  },
+  {
+    "key": "oklahoma-state-university-center-for-health-sciences-college-of-osteopathic-medicine-osu-com",
+    "name": "Oklahoma State University Center for Health Sciences College of Osteopathic Medicine (OSU-COM)",
+    "city": "Tulsa",
+    "state": "OK"
+  },
+  {
+    "key": "oklahoma-state-university-center-for-health-sciences-college-of-osteopathic-medicine---tahlequah-osu-com-tahlequah",
+    "name": "Oklahoma State University Center for Health Sciences College of Osteopathic Medicine - Tahlequah (OSU-COM Tahlequah)",
+    "city": "Tahlequah",
+    "state": "OK"
+  },
+  {
+    "key": "orlando-college-of-osteopathic-medicine-ocom",
+    "name": "Orlando College of Osteopathic Medicine (OCOM)",
+    "city": "Orlando",
+    "state": "FL"
+  },
+  {
+    "key": "pacific-northwest-university-of-health-sciences-college-of-osteopathic-medicine-pnwu-com",
+    "name": "Pacific Northwest University of Health Sciences College of Osteopathic Medicine (PNWU-COM)",
+    "city": "Yakima",
+    "state": "WA"
+  },
+  {
+    "key": "philadelphia-college-of-osteopathic-medicine-pcom",
+    "name": "Philadelphia College of Osteopathic Medicine (PCOM)",
+    "city": "Philadelphia",
+    "state": "PA"
+  },
+  {
+    "key": "philadelphia-college-of-osteopathic-medicine-georgia-pcom-georgia",
+    "name": "Philadelphia College of Osteopathic Medicine Georgia (PCOM Georgia)",
+    "city": "Suwanee",
+    "state": "GA"
+  },
+  {
+    "key": "philadelphia-college-of-osteopathic-medicine-south-georgia-pcom-south-georgia",
+    "name": "Philadelphia College of Osteopathic Medicine South Georgia (PCOM South Georgia)",
+    "city": "Moultrie",
+    "state": "GA"
+  },
+  {
+    "key": "rocky-vista-university-college-of-osteopathic-medicine-rvucom",
+    "name": "Rocky Vista University College of Osteopathic Medicine (RVUCOM)",
+    "city": "Parker",
+    "state": "CO"
+  },
+  {
+    "key": "rocky-vista-university---montana-college-of-osteopathic-medicine-rvu-mcom",
+    "name": "Rocky Vista University - Montana College of Osteopathic Medicine (RVU-MCOM)",
+    "city": "Billings",
+    "state": "MT"
+  },
+  {
+    "key": "rocky-vista-university-college-of-osteopathic-medicine-rvucom-su-campus",
+    "name": "Rocky Vista University College of Osteopathic Medicine (RVUCOM-SU Campus)",
+    "city": "Ivins",
+    "state": "UT"
+  },
+  {
+    "key": "rowan-virtua-school-of-osteopathic-medicine-rowan-virtuasom",
+    "name": "Rowan-Virtua School of Osteopathic Medicine (Rowan-VirtuaSOM)",
+    "city": "Stratford",
+    "state": "NJ"
+  },
+  {
+    "key": "rowan-virtua-school-of-osteopathic-medicine-rowan-virtuasom-sewell",
+    "name": "Rowan-Virtua School of Osteopathic Medicine (Rowan-VirtuaSOM-Sewell)",
+    "city": "Sewell",
+    "state": "NJ"
+  },
+  {
+    "key": "sam-houston-state-university-college-of-osteopathic-medicine-shsu-com",
+    "name": "Sam Houston State University College of Osteopathic Medicine (SHSU-COM)",
+    "city": "Conroe",
+    "state": "TX"
+  },
+  {
+    "key": "touro-college-of-osteopathic-medicine---great-falls-tourocom-great-falls",
+    "name": "Touro College of Osteopathic Medicine - Great Falls (TouroCOM-Great Falls)",
+    "city": "Great Falls",
+    "state": "MT"
+  },
+  {
+    "key": "touro-college-of-osteopathic-medicine-tourocom-harlem",
+    "name": "Touro College of Osteopathic Medicine (TouroCOM-Harlem)",
+    "city": "New York",
+    "state": "NY"
+  },
+  {
+    "key": "touro-college-of-osteopathic-medicine-tourocom-middletown",
+    "name": "Touro College of Osteopathic Medicine (TouroCOM-Middletown)",
+    "city": "Middletown",
+    "state": "NY"
+  },
+  {
+    "key": "touro-university-college-of-osteopathic-medicine-california-tucom",
+    "name": "Touro University College of Osteopathic Medicine-California (TUCOM)",
+    "city": "Vallejo",
+    "state": "CA"
+  },
+  {
+    "key": "touro-university-nevada-college-of-osteopathic-medicine-tuncom",
+    "name": "Touro University Nevada College of Osteopathic Medicine (TUNCOM)",
+    "city": "Henderson",
+    "state": "NV"
+  },
+  {
+    "key": "university-of-the-incarnate-word-school-of-osteopathic-medicine-uiwsom",
+    "name": "University of the Incarnate Word School of Osteopathic Medicine (UIWSOM)",
+    "city": "San Antonio",
+    "state": "TX"
+  },
+  {
+    "key": "university-of-new-england-college-of-osteopathic-medicine-unecom",
+    "name": "University of New England College of Osteopathic Medicine (UNECOM)",
+    "city": "Biddeford",
+    "state": "ME"
+  },
+  {
+    "key": "university-of-north-texas-health-science-center-texas-college-of-osteopathic-medicine-unthsc-tcom",
+    "name": "University of North Texas Health Science Center Texas College of Osteopathic Medicine (UNTHSC/TCOM)",
+    "city": "Fort Worth",
+    "state": "TX"
+  },
+  {
+    "key": "university-of-pikeville-kentucky-college-of-osteopathic-medicine-up-kycom",
+    "name": "University of Pikeville Kentucky College of Osteopathic Medicine (UP-KYCOM)",
+    "city": "Pikeville",
+    "state": "KY"
+  },
+  {
+    "key": "west-virginia-school-of-osteopathic-medicine-wvsom",
+    "name": "West Virginia School of Osteopathic Medicine (WVSOM)",
+    "city": "Lewisburg",
+    "state": "WV"
+  },
+  {
+    "key": "western-university-of-health-sciences-college-of-osteopathic-medicine-of-the-pacific-westernu-comp",
+    "name": "Western University of Health Sciences College of Osteopathic Medicine of the Pacific (WesternU/COMP)",
+    "city": "Pomona",
+    "state": "CA"
+  },
+  {
+    "key": "western-university-of-health-sciences-college-of-osteopathic-medicine-of-the-pacific-northwest-westernu-comp-northwest",
+    "name": "Western University of Health Sciences College of Osteopathic Medicine of the Pacific-Northwest (WesternU/COMP-Northwest)",
+    "city": "Lebanon",
+    "state": "OR"
+  },
+  {
+    "key": "william-carey-university-college-of-osteopathic-medicine-wcucom",
+    "name": "William Carey University College of Osteopathic Medicine (WCUCOM)",
+    "city": "Hattiesburg",
+    "state": "MS"
+  }
+];
+
+const LAW_SCHOOLS = [
+  {
+    "key": "wilmington-university-school-of-law-provisional",
+    "name": "Wilmington University School of Law (provisional)",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "jacksonville-university-college-of-law-provisional",
+    "name": "Jacksonville University College of Law (provisional)",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "unt-dallas-college-of-law-provisional-since-2017",
+    "name": "UNT Dallas College of Law (provisional since 2017)",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "mitchell-hamline-school-of-law",
+    "name": "Mitchell Hamline School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "lincoln-memorial-university-school-of-law",
+    "name": "Lincoln Memorial University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "belmont-university-college-of-law",
+    "name": "Belmont University College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "umass-law",
+    "name": "UMass Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-california-irvine-school-of-law",
+    "name": "University of California, Irvine School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "drexel-university-school-of-law",
+    "name": "Drexel University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "elon-university-school-of-law",
+    "name": "Elon University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "charleston-school-of-law",
+    "name": "Charleston School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "faulkner-university-thomas-goode-jones-school-of-law",
+    "name": "Faulkner University, Thomas Goode Jones School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "liberty-university-school-of-law",
+    "name": "Liberty University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "atlantas-john-marshall-law-school",
+    "name": "Atlanta's John Marshall Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "western-state-college-of-law-at-westcliff-university-previously-approved-1998-2004-name-changed-from-argosy-university-in-2019",
+    "name": "Western State College of Law at Westcliff University (previously approved 1998-2004, name changed from Argosy University in 2019)",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "florida-aandm-university-college-of-law",
+    "name": "Florida A&M University College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "florida-international-university-college-of-law",
+    "name": "Florida International University College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-st-thomas-school-of-law-minnesota",
+    "name": "University of St. Thomas School of Law (Minnesota)",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "ave-maria-school-of-law",
+    "name": "Ave Maria School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "barry-university-dwayne-o-andreas-school-of-law",
+    "name": "Barry University, Dwayne O. Andreas School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "appalachian-school-of-law",
+    "name": "Appalachian School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-nevada-las-vegas-william-s-boyd-school-of-law",
+    "name": "University of Nevada-Las Vegas, William S. Boyd School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "chapman-university-school-of-law",
+    "name": "Chapman University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "roger-williams-university-school-of-law",
+    "name": "Roger Williams University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "seattle-university-school-of-law",
+    "name": "Seattle University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "texas-aandm-university-school-of-law-formerly-texas-wesleyan-school-of-law",
+    "name": "Texas A&M University School of Law (formerly Texas Wesleyan School of Law)",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "quinnipiac-university-school-of-law",
+    "name": "Quinnipiac University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-the-district-of-columbia-david-a-clarke-school-of-law",
+    "name": "University of the District of Columbia, David A. Clarke School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "regent-university-school-of-law",
+    "name": "Regent University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "st-thomas-university-college-of-law-florida-previously-school-of-law",
+    "name": "St. Thomas University College of Law (Florida) (previously School of Law)",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "widener-university-commonwealth-law-school",
+    "name": "Widener University-Commonwealth Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "city-university-of-new-york-school-of-law",
+    "name": "City University of New York School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "georgia-state-university-college-of-law",
+    "name": "Georgia State University College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "touro-college-jacob-d-fuchsberg-law-center-named-touro-university-in-2022",
+    "name": "Touro College, Jacob D. Fuchsberg Law Center (named Touro University in 2022)",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "george-mason-university-school-of-law",
+    "name": "George Mason University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "mississippi-college-school-of-law",
+    "name": "Mississippi College School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "campbell-university-norman-adrian-wiggins-school-of-law",
+    "name": "Campbell University, Norman Adrian Wiggins School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "northern-illinois-university-college-of-law",
+    "name": "Northern Illinois University College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "pace-university-school-of-law",
+    "name": "Pace University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "yeshiva-university-benjamin-n-cardozo-school-of-law",
+    "name": "Yeshiva University, Benjamin N. Cardozo School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-dayton-school-of-law",
+    "name": "University of Dayton School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "hamline-university-school-of-law-now-mitchell-hamline-school-of-law",
+    "name": "Hamline University School of Law (now Mitchell | Hamline School of Law)",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "nova-southeastern-university-shepard-broad-law-center",
+    "name": "Nova Southeastern University, Shepard Broad Law Center",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "cooley-law-school",
+    "name": "Cooley Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "vermont-law-school",
+    "name": "Vermont Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "widener-university-delaware-law-school",
+    "name": "Widener University-Delaware Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "brigham-young-university-j-reuben-clark-law-school",
+    "name": "Brigham Young University, J. Reuben Clark Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-hawaii-william-s-richardson-school-of-law",
+    "name": "University of Hawai'i, William S. Richardson School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-new-hampshire-school-of-law",
+    "name": "University of New Hampshire School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "southern-illinois-university-school-of-law",
+    "name": "Southern Illinois University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "western-new-england-college-school-of-law",
+    "name": "Western New England College School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-baltimore-school-of-law",
+    "name": "University of Baltimore School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "pepperdine-university-school-of-law",
+    "name": "Pepperdine University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "hofstra-university-school-of-law",
+    "name": "Hofstra University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "lewis-and-clark-college-law-school",
+    "name": "Lewis and Clark College Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "southwestern-law-school",
+    "name": "Southwestern Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "arizona-state-university-sandra-day-oconnor-college-of-law",
+    "name": "Arizona State University, Sandra Day O'Connor College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-arkansas-at-little-rock-william-h-bowen-school-of-law",
+    "name": "University of Arkansas at Little Rock, William H. Bowen School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "inter-american-university-of-puerto-rico-school-of-law",
+    "name": "Inter American University of Puerto Rico, School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "mcgeorge-school-of-law-the-university-of-the-pacific",
+    "name": "McGeorge School of Law, The University of the Pacific",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "new-england-law-boston",
+    "name": "New England Law | Boston",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "northeastern-university-school-of-law",
+    "name": "Northeastern University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "texas-tech-university-school-of-law",
+    "name": "Texas Tech University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-california-davis-school-of-law",
+    "name": "University of California-Davis, School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "florida-state-university-college-of-law",
+    "name": "Florida State University College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "pontifical-catholic-university-of-puerto-rico-school-of-law",
+    "name": "Pontifical Catholic University of Puerto Rico School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-memphis-school-of-law",
+    "name": "University of Memphis School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "california-western-school-of-law",
+    "name": "California Western School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-maine-school-of-law",
+    "name": "University of Maine School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "the-university-of-akron-school-of-law",
+    "name": "The University of Akron School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-san-diego-school-of-law",
+    "name": "University of San Diego School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "duquesne-university-school-of-law",
+    "name": "Duquesne University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "oklahoma-city-university-college-of-law",
+    "name": "Oklahoma City University College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "south-texas-college-of-law-houston",
+    "name": "South Texas College of Law-Houston",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "judge-advocate-generals-legal-center-and-school",
+    "name": "Judge Advocate General's Legal Center and School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "cleveland-state-university-college-of-law",
+    "name": "Cleveland State University College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "golden-gate-university-school-of-law",
+    "name": "Golden Gate University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "new-york-law-school",
+    "name": "New York Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "northern-kentucky-university-salmon-p-chase-college-of-law",
+    "name": "Northern Kentucky University, Salmon P. Chase College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "villanova-university-school-of-law",
+    "name": "Villanova University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "southern-university-law-center",
+    "name": "Southern University Law Center",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "suffolk-university-law-center",
+    "name": "Suffolk University Law Center",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "gonzaga-university-school-of-law",
+    "name": "Gonzaga University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-illinois-chicago-school-of-law-formerly-uic-john-marshall",
+    "name": "University of Illinois Chicago School of Law (formerly UIC John Marshall)",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "seton-hall-university-school-of-law",
+    "name": "Seton Hall University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-california-los-angeles-school-of-law",
+    "name": "University of California-Los Angeles, School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "capital-university-law-school",
+    "name": "Capital University Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-houston-law-center",
+    "name": "University of Houston Law Center",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "north-carolina-central-university-school-of-law",
+    "name": "North Carolina Central University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "rutgers-school-of-law-camden",
+    "name": "Rutgers School of Law-Camden",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "the-university-of-tulsa-college-of-law",
+    "name": "The University of Tulsa College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "samford-university-cumberland-school-of-law",
+    "name": "Samford University, Cumberland School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "texas-southern-university-thurgood-marshall-school-of-law",
+    "name": "Texas Southern University, Thurgood Marshall School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "the-university-of-new-mexico-school-of-law",
+    "name": "The University of New Mexico School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "ohio-northern-university-claude-w-pettit-college-of-law",
+    "name": "Ohio Northern University-Claude W. Pettit College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "st-marys-university-school-of-law",
+    "name": "St. Mary's University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-puerto-rico-school-of-law",
+    "name": "University of Puerto Rico School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "indiana-university-robert-h-mckinney-school-of-law-indianapolis",
+    "name": "Indiana University Robert H. McKinney School of Law (Indianapolis)",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "detroit-college-of-law-now-michigan-state-university-college-of-law",
+    "name": "Detroit College of Law (now Michigan State University College of Law)",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-miami-school-of-law",
+    "name": "University of Miami School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "rutgers-school-of-law-newark",
+    "name": "Rutgers School of Law - Newark",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "american-university-washington-college-of-law",
+    "name": "American University, Washington College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-california-college-of-the-law-san-francisco-previously-hastings-school-of-law",
+    "name": "University of California College of the Law, San Francisco (Previously Hastings, School of Law)",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-toledo-college-of-law",
+    "name": "University of Toledo College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "willamette-university-college-of-law",
+    "name": "Willamette University College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "william-mitchell-college-of-law-now-mitchell-hamline-school-of-law",
+    "name": "William Mitchell College of Law (now Mitchell | Hamline School of Law)",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "brooklyn-law-school",
+    "name": "Brooklyn Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "st-johns-university-school-of-law",
+    "name": "St. John's University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "santa-clara-university-school-of-law",
+    "name": "Santa Clara University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "wayne-state-university-law-school",
+    "name": "Wayne State University Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "chicago-kent-college-of-law-illinois-institute-of-technology",
+    "name": "Chicago-Kent College of Law, Illinois Institute of Technology",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "fordham-university-school-of-law",
+    "name": "Fordham University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-missouri-kansas-city-school-of-law",
+    "name": "University of Missouri-Kansas City School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-at-buffalo-school-of-law",
+    "name": "University at Buffalo School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "wake-forest-university-school-of-law",
+    "name": "Wake Forest University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "loyola-law-school-los-angeles",
+    "name": "Loyola Law School-Los Angeles",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-san-francisco-school-of-law",
+    "name": "University of San Francisco School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-connecticut-school-of-law",
+    "name": "University of Connecticut School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-detroit-mercy-school-of-law",
+    "name": "University of Detroit Mercy School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "temple-university-james-e-beasley-school-of-law",
+    "name": "Temple University, James E. Beasley School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "boston-college-law-school",
+    "name": "Boston College Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "college-of-william-and-mary-marshall-wythe-law-school",
+    "name": "College of William and Mary, Marshall-Wythe Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "baylor-university-sheila-and-walter-umphrey-law-center",
+    "name": "Baylor University, Sheila & Walter Umphrey Law Center",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "duke-university-school-of-law",
+    "name": "Duke University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "howard-university-school-of-law",
+    "name": "Howard University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-louisville-louis-d-brandeis-school-of-law",
+    "name": "University of Louisville, Louis D. Brandeis School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "loyola-university-new-orleans-college-of-law",
+    "name": "Loyola University - New Orleans College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "dickinson-school-of-law-now-penn-state-dickinson-law",
+    "name": "Dickinson School of Law (now Penn State-Dickinson Law)",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "pennsylvania-state-university-penn-state-law-now-penn-state-dickinson-law",
+    "name": "Pennsylvania State University-Penn State Law )now Penn State-Dickinson Law)",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "albany-law-school",
+    "name": "Albany Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "the-university-of-arizona-james-e-rogers-college-of-law",
+    "name": "The University of Arizona, James E. Rogers College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-georgia-school-of-law",
+    "name": "University of Georgia School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-maryland-school-of-law",
+    "name": "University of Maryland School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-mississippi-school-of-law",
+    "name": "University of Mississippi School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "new-york-university-school-of-law",
+    "name": "New York University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "stetson-university-school-of-law",
+    "name": "Stetson University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-richmond-school-of-law-formerly-tc-williams-school-of-law",
+    "name": "University of Richmond, School of Law (formerly T.C. Williams School of Law)",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "southern-methodist-university-dedman-school-of-law",
+    "name": "Southern Methodist University, Dedman School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-utah-sj-quinney-college-of-law",
+    "name": "University of Utah, S.J. Quinney College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "the-university-of-alabama-school-of-law",
+    "name": "The University of Alabama School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "the-university-of-arkansas-school-of-law-fayetteville",
+    "name": "The University of Arkansas School of Law-Fayetteville",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "louisiana-state-university-paul-m-hebert-law-center",
+    "name": "Louisiana State University, Paul M. Hebert Law Center",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "boston-university-school-of-law",
+    "name": "Boston University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "the-catholic-university-of-america-columbus-school-of-law",
+    "name": "The Catholic University of America, Columbus School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "depaul-university-school-of-law",
+    "name": "DePaul University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-florida-fredric-g-levin-college-of-law",
+    "name": "University of Florida, Fredric G. Levin College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-idaho-college-of-law",
+    "name": "University of Idaho College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-kentucky-college-of-law",
+    "name": "University of Kentucky College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "loyola-university-chicago-school-of-law",
+    "name": "Loyola University-Chicago School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "marquette-university-law-school",
+    "name": "Marquette University Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "mercer-university-walter-f-george-school-of-law",
+    "name": "Mercer University, Walter F. George School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-notre-dame-law-school",
+    "name": "University of Notre Dame Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-south-carolina-school-of-law",
+    "name": "University of South Carolina School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "the-university-of-tennessee-college-of-law",
+    "name": "The University of Tennessee College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "tulane-university-law-school",
+    "name": "Tulane University Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "vanderbilt-university-law-school",
+    "name": "Vanderbilt University Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "creighton-university-school-of-law",
+    "name": "Creighton University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "georgetown-university-law-center",
+    "name": "Georgetown University Law Center",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "saint-louis-university-school-of-law",
+    "name": "Saint Louis University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-southern-california-gould-school-of-law",
+    "name": "University of Southern California, Gould School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-washington-school-of-law",
+    "name": "University of Washington School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-california-berkeley-college-of-law",
+    "name": "University of California-Berkeley, College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "case-western-reserve-university-school-of-law",
+    "name": "Case Western Reserve University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-chicago-law-school",
+    "name": "University of Chicago Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-cincinnati-college-of-law",
+    "name": "University of Cincinnati College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-colorado-law-school",
+    "name": "University of Colorado Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "columbia-university-law-school",
+    "name": "Columbia University Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "cornell-university-law-school",
+    "name": "Cornell University Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-denver-sturm-college-of-law",
+    "name": "University of Denver Sturm College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "drake-university-law-school",
+    "name": "Drake University Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "emory-university-school-of-law",
+    "name": "Emory University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "the-george-washington-university-law-school",
+    "name": "The George Washington University Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "harvard-university-law-school",
+    "name": "Harvard University Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-illinois-college-of-law",
+    "name": "University of Illinois College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "indiana-university-maurer-school-of-law-bloomington",
+    "name": "Indiana University Maurer School of Law (Bloomington)",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-iowa-college-of-law",
+    "name": "University of Iowa College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-kansas-school-of-law",
+    "name": "University of Kansas School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-michigan-law-school",
+    "name": "University of Michigan Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-minnesota-law-school",
+    "name": "University of Minnesota Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-missouri-school-of-law",
+    "name": "University of Missouri School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "the-university-of-montana-school-of-law",
+    "name": "The University of Montana School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-nebraska-college-of-law",
+    "name": "University of Nebraska College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-north-carolina-at-chapel-hill-school-of-law",
+    "name": "University of North Carolina at Chapel Hill School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-north-dakota-school-of-law",
+    "name": "University of North Dakota School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "northwestern-university-school-of-law",
+    "name": "Northwestern University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "the-ohio-state-university-michael-e-moritz-college-of-law",
+    "name": "The Ohio State University, Michael E. Moritz College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-oklahoma-college-of-law",
+    "name": "University of Oklahoma College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-oregon-school-of-law",
+    "name": "University of Oregon School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-pennsylvania-law-school",
+    "name": "University of Pennsylvania Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-pittsburgh-school-of-law",
+    "name": "University of Pittsburgh School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-south-dakota-school-of-law",
+    "name": "University of South Dakota School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "stanford-university-law-school",
+    "name": "Stanford University Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "syracuse-university-college-of-law",
+    "name": "Syracuse University College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "the-university-of-texas-school-of-law",
+    "name": "The University of Texas School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-virginia-school-of-law",
+    "name": "University of Virginia School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "washburn-university-school-of-law",
+    "name": "Washburn University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "washington-and-lee-university-school-of-law",
+    "name": "Washington and Lee University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "washington-university-school-of-law",
+    "name": "Washington University School of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "west-virginia-university-college-of-law",
+    "name": "West Virginia University College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-wisconsin-law-school",
+    "name": "University of Wisconsin Law School",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "university-of-wyoming-college-of-law",
+    "name": "University of Wyoming College of Law",
+    "city": "",
+    "state": ""
+  },
+  {
+    "key": "yale-university-law-school",
+    "name": "Yale University Law School",
+    "city": "",
+    "state": ""
+  }
+];
 const DENTAL_SCHOOLS = [
   // Alabama
   { key: "uab", name: "University of Alabama School of Dentistry", city: "Birmingham", state: "AL" },
@@ -179,6 +2459,11 @@ const DENTAL_SCHOOLS = [
   { key: "marquette", name: "Marquette University School of Dentistry", city: "Milwaukee", state: "WI" },
 ];
 
+const SCHOOL_BANKS = {
+  dental: { label: "Dental",  gradient: "from-pink-500 via-fuchsia-500 to-violet-500",  list: DENTAL_SCHOOLS },
+  med:    { label: "Medical", gradient: "from-emerald-500 via-teal-500 to-sky-500",     list: MED_SCHOOLS },
+  law:    { label: "Law",     gradient: "from-amber-500 via-orange-500 to-rose-500",    list: LAW_SCHOOLS },
+};
 
 // pastel fallback
 const pastelColors = [
@@ -549,7 +2834,11 @@ export default function DentalRankingApp() {
   const [schoolSearch, setSchoolSearch] = useState("");
   const [selectedBankKey, setSelectedBankKey] = useState(DENTAL_SCHOOLS[0]?.key ?? null);
   const [selectedKeys, setSelectedKeys] = useState(new Set());
-
+  // derive the active list for the chosen bank
+const activeList = React.useMemo(
+  () => (bankId ? SCHOOL_BANKS[bankId].list : []),
+  [bankId]
+);
 
 
   // cloud
@@ -742,30 +3031,34 @@ export default function DentalRankingApp() {
   }
 
   
-  function addSchoolFromBank(key) {
-    const template = DENTAL_SCHOOLS.find(s => s.key === key);
-    if (!template) return;
-
-    // avoid duplicates by name
-    const nameExists = schools.some(
-      s => s.name.trim().toLowerCase() === template.name.trim().toLowerCase()
-    );
-    const id = makeId();
-
-    setSchools(prev => [
-      ...prev,
-      {
-        id,
-        name: nameExists
-          ? `${template.name} (${prev.filter(p => p.name.startsWith(template.name)).length + 1})`
-          : template.name,
-        city: template.city || "",
-        state: template.state || "",
-        deadline: template.deadline || "",
-        // criteria fields stay empty so user fills them later
-      },
-    ]);
+function addSchoolFromBank(key) {
+  // search in all banks
+  let template = null;
+  for (const b of Object.values(SCHOOL_BANKS)) {
+    const hit = b.list.find((s) => s.key === key);
+    if (hit) { template = hit; break; }
   }
+  if (!template) return;
+
+  const nameExists = schools.some(
+    (s) => s.name.trim().toLowerCase() === template.name.trim().toLowerCase()
+  );
+  const id = makeId();
+
+  setSchools((prev) => [
+    ...prev,
+    {
+      id,
+      name: nameExists
+        ? `${template.name} (${prev.filter((p) => p.name.startsWith(template.name)).length + 1})`
+        : template.name,
+      city: template.city || "",
+      state: template.state || "",
+      deadline: template.deadline || "",
+    },
+  ]);
+}
+
 
   function toggleSelected(k) {
   setSelectedKeys(prev => {
@@ -905,25 +3198,20 @@ if (!session && !guestMode) {
             Log out
           </button>
 
-          <label className="flex items-center gap-2 px-3 py-2 rounded-2xl border bg-white/70 cursor-pointer select-none">
-            <Palette className="w-4 h-4" />
-            <span className="text-sm">Rainbow mode</span>
-            <input
-              type="checkbox"
-              className="h-4 w-4"
-              checked={rainbowMode}
-              onChange={(e) => setRainbowMode(e.target.checked)}
-            />
-          </label>
-
-
           <button
-            onClick={() => setAddPickerOpen(true)}
-            className="rounded-2xl px-3 py-2 text-white bg-[linear-gradient(90deg,#ff80b5,#9089fc)] hover:opacity-90 flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Add School
-          </button>
+  onClick={() => {
+    setAddPickerOpen(true); // ✅ open modal
+    setAddStep("bank");     // ✅ go to step 1 (bank chooser)
+    setBankId(null);        // ✅ no bank selected yet
+    setSelectedKeys(new Set()); // ✅ clear previous selections
+    setSchoolSearch("");    // ✅ clear search bar
+  }}
+  className="rounded-2xl px-3 py-2 text-white bg-[linear-gradient(90deg,#ff80b5,#9089fc)] hover:opacity-90 flex items-center gap-2"
+>
+  <Plus className="w-4 h-4" />
+  Add School
+</button>
+
 
         
           <button
@@ -986,7 +3274,9 @@ if (!session && !guestMode) {
       <div className="flex items-center justify-between">
         <h3 className="text-xl md:text-2xl font-extrabold tracking-tight">
           <span className="bg-clip-text text-transparent bg-[linear-gradient(90deg,#f43f5e,#f59e0b,#22c55e,#06b6d4,#8b5cf6)]">
-            Pick a Dental School
+            {addStep === "bank"
+              ? "Choose a School Bank"
+              : `Pick a ${SCHOOL_BANKS[bankId]?.label} School`}
           </span>
         </h3>
         <button
@@ -997,69 +3287,151 @@ if (!session && !guestMode) {
         </button>
       </div>
 
-      {/* Search */}
-      <input
-        type="text"
-        value={schoolSearch}
-        onChange={(e) => setSchoolSearch(e.target.value)}
-        placeholder="Search schools…"
-        className="w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-2.5 outline-none focus:ring-2 focus:ring-pink-200"
-      />
-
-      {/* List */}
-      <div className="flex-1 overflow-y-auto rounded-2xl border border-slate-200 bg-white/60 p-2 space-y-2">
-        {DENTAL_SCHOOLS
-          .filter((s) => {
-            const q = schoolSearch.trim().toLowerCase();
-            if (!q) return true;
-            return (
-              s.name.toLowerCase().includes(q) ||
-              (s.city || "").toLowerCase().includes(q) ||
-              (s.state || "").toLowerCase().includes(q)
-            );
-          })
-          .map((s) => {
-            const checked = selectedKeys.has(s.key);
-            return (
-              <label
-                key={s.key}
-                className={`flex items-start gap-3 rounded-2xl border px-3 py-3 cursor-pointer transition
-                ${checked ? "border-fuchsia-300 bg-fuchsia-50/60" : "border-slate-200 hover:bg-slate-50"}`}
-              >
-                <input
-                  type="checkbox"
-                  className="mt-1 h-4 w-4"
-                  checked={checked}
-                  onChange={() => toggleSelected(s.key)}
-                />
-                <div className="text-sm">
-                  <div className="font-medium">{s.name}</div>
-                  <div className="text-xs text-slate-500">
-                    {s.city}{s.city && s.state ? ", " : ""}{s.state}
+      {/* STEP 1: BANK CHOOSER */}
+      {addStep === "bank" && (
+        <>
+          <div className="grid grid-cols-1 gap-3">
+            {(["dental","med","law"]).map((id) => {
+              const bank = SCHOOL_BANKS[id];
+              return (
+                <button
+                  key={id}
+                  onClick={() => { setBankId(id); setAddStep("pick"); }}
+                  className={`rounded-2xl px-4 py-4 text-left border bg-white hover:bg-slate-50 transition
+                              shadow-sm`}
+                >
+                  <div className={`inline-flex items-center justify-center rounded-xl px-2.5 py-1 text-xs font-semibold text-white bg-gradient-to-r ${bank.gradient}`}>
+                    {bank.label} Schools
                   </div>
-                </div>
-              </label>
-            );
-          })}
-      </div>
+                  <div className="mt-2 text-sm text-slate-600">
+                    {bank.list.length} schools available
+                  </div>
+                </button>
+              );
+            })}
+          </div>
 
-      {/* ✅ footer INSIDE the card now */}
-      <div className="flex justify-end gap-2 pt-2">
-        <button
-          className="rounded-2xl px-4 py-2 border"
-          onClick={() => setAddPickerOpen(false)}
-        >
-          Cancel
-        </button>
+          {/* Footer */}
+          <div className="flex justify-end pt-2">
+            <button
+              className="rounded-2xl px-4 py-2 border"
+              onClick={() => setAddPickerOpen(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        </>
+      )}
 
-        <button
-          disabled={selectedKeys.size === 0}
-          className="rounded-2xl px-4 py-2 text-white bg-[linear-gradient(90deg,#f97316,#ec4899,#6366f1)] disabled:opacity-50"
-          onClick={() => addSelectedSchools(true)}
-        >
-          Add & Close
-        </button>
-      </div>
+      {/* STEP 2: PICKER FOR THE CHOSEN BANK */}
+      {addStep === "pick" && (
+        <>
+          {/* Search */}
+          <input
+            type="text"
+            value={schoolSearch}
+            onChange={(e) => setSchoolSearch(e.target.value)}
+            placeholder={`Search ${SCHOOL_BANKS[bankId]?.label?.toLowerCase()} schools…`}
+            className="w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-2.5 outline-none focus:ring-2 focus:ring-pink-200"
+          />
+
+          {/* List */}
+          <div className="flex-1 overflow-y-auto rounded-2xl border border-slate-200 bg-white/60 p-2 space-y-2">
+            {activeList
+              .filter((s) => {
+                const q = schoolSearch.trim().toLowerCase();
+                if (!q) return true;
+                return (
+                  s.name.toLowerCase().includes(q) ||
+                  (s.city || "").toLowerCase().includes(q) ||
+                  (s.state || "").toLowerCase().includes(q)
+                );
+              })
+              .map((s) => {
+                const checked = selectedKeys.has(s.key);
+                return (
+                  <label
+                    key={s.key}
+                    className={`flex items-start gap-3 rounded-2xl border px-3 py-3 cursor-pointer transition
+                    ${checked ? "border-fuchsia-300 bg-fuchsia-50/60" : "border-slate-200 hover:bg-slate-50"}`}
+                  >
+                    <input
+                      type="checkbox"
+                      className="mt-1 h-4 w-4"
+                      checked={checked}
+                      onChange={() => {
+                        setSelectedKeys(prev => {
+                          const next = new Set(prev);
+                          if (next.has(s.key)) next.delete(s.key);
+                          else next.add(s.key);
+                          return next;
+                        });
+                      }}
+                    />
+                    <div className="text-sm">
+                      <div className="font-medium">{s.name}</div>
+                      <div className="text-xs text-slate-500">
+                        {s.city}{s.city && s.state ? ", " : ""}{s.state}
+                      </div>
+                    </div>
+                  </label>
+                );
+              })}
+          </div>
+
+          {/* Footer */}
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
+            <div className="flex items-center gap-2 text-xs text-slate-600">
+              <button
+                className="px-2 py-1 rounded-xl border hover:bg-slate-50"
+                onClick={() => setSelectedKeys(new Set())}
+              >
+                Clear
+              </button>
+              <button
+                className="px-2 py-1 rounded-xl border hover:bg-slate-50"
+                onClick={() => {
+                  const visible = activeList.filter((s) => {
+                    const q = schoolSearch.trim().toLowerCase();
+                    if (!q) return true;
+                    return (
+                      s.name.toLowerCase().includes(q) ||
+                      (s.city || "").toLowerCase().includes(q) ||
+                      (s.state || "").toLowerCase().includes(q)
+                    );
+                  }).map((s) => s.key);
+                  setSelectedKeys(new Set(visible));
+                }}
+              >
+                Select all (filtered)
+              </button>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                className="rounded-2xl px-4 py-2 border"
+                onClick={() => setAddStep("bank")}
+              >
+                Back
+              </button>
+              <button
+                disabled={selectedKeys.size === 0}
+                className="rounded-2xl px-4 py-2 text-white bg-[linear-gradient(90deg,#f97316,#ec4899,#6366f1)] disabled:opacity-50"
+                onClick={() => {
+                  // add all selected from chosen bank, then close
+                  if (selectedKeys.size > 0) {
+                    [...selectedKeys].forEach((k) => addSchoolFromBank(k));
+                  }
+                  setSelectedKeys(new Set());
+                  setAddPickerOpen(false);
+                }}
+              >
+                Add & Close
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   </div>
 )}
