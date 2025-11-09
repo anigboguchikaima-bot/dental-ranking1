@@ -2830,10 +2830,11 @@ export default function DentalRankingApp() {
   const [raterOpen, setRaterOpen] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
   // NEW — dropdown picker for Add School
-  const [addPickerOpen, setAddPickerOpen] = useState(false);
-  const [schoolSearch, setSchoolSearch] = useState("");
-  const [selectedBankKey, setSelectedBankKey] = useState(DENTAL_SCHOOLS[0]?.key ?? null);
-  const [selectedKeys, setSelectedKeys] = useState(new Set());
+ const [addPickerOpen, setAddPickerOpen] = useState(false);
+const [addStep, setAddStep] = useState("bank");       // ⬅ REQUIRED
+const [bankId, setBankId] = useState(null);           // ⬅ REQUIRED
+const [schoolSearch, setSchoolSearch] = useState("");
+const [selectedKeys, setSelectedKeys] = useState(new Set()); // already there but keep here grouped
   // derive the active list for the chosen bank
 const activeList = React.useMemo(
   () => (bankId ? SCHOOL_BANKS[bankId].list : []),
