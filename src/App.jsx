@@ -548,6 +548,8 @@ export default function DentalRankingApp() {
   const [addPickerOpen, setAddPickerOpen] = useState(false);
   const [schoolSearch, setSchoolSearch] = useState("");
   const [selectedBankKey, setSelectedBankKey] = useState(DENTAL_SCHOOLS[0]?.key ?? null);
+  const [selectedKeys, setSelectedKeys] = useState(new Set());
+
 
 
   // cloud
@@ -765,7 +767,22 @@ export default function DentalRankingApp() {
     ]);
   }
 
-  
+  function toggleSelected(k) {
+  setSelectedKeys(prev => {
+    const s = new Set(prev);
+    if (s.has(k)) s.delete(k);
+    else s.add(k);
+    return s;
+  });
+}
+
+function addSelectedSchools(closeAfter = true) {
+  if (selectedKeys.size === 0) return;
+  [...selectedKeys].forEach(k => addSchoolFromBank(k));
+  setSelectedKeys(new Set());
+  if (closeAfter) setAddPickerOpen(false);
+}
+
   function removeSchool(sid) {
     setSchools((prev) => prev.filter((s) => s.id !== sid));
   }
@@ -961,77 +978,145 @@ if (!session && !guestMode) {
         </div>
       )}
 
-      {addPickerOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-          <div className="bg-white rounded-3xl w-full max-w-lg p-5 shadow-xl space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Add School from Bank</h3>
-              <button
-                className="text-sm px-2 py-1 rounded-xl hover:bg-slate-100"
-                onClick={() => setAddPickerOpen(false)}
-               >
-                Close
-              </button>
-             </div>
+     {addPickerOpen && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+    <div className="bg-white rounded-3xl w-full max-w-2xl p-6 md:p-7 shadow-2xl space-y-5">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h3 className="text-xl md:text-2xl font-extrabold tracking-tight">
+          <span className="bg-clip-text text-transparent bg-[linear-gradient(90deg,#f43f5e,#f59e0b,#22c55e,#06b6d4,#8b5cf6)]">
+            Pick a Dental School
+          </span>
+        </h3>
+        <button
+          className="text-sm px-2 py-1 rounded-xl hover:bg-slate-100"
+          onClick={() => setAddPickerOpen(false)}
+        >
+          Close
+        </button>
+      </div>
 
-            {/* Search box */}
-            <input
-              type="text"
-              value={schoolSearch}
-              onChange={(e) => setSchoolSearch(e.target.value)}
-              placeholder="Search schools…"
-              className="w-full border rounded-xl px-3 py-2"
-            />
+      {/* Search */}
+      <div className="relative">
+        <input
+          type="text"
+          value={schoolSearch}
+          onChange={(e) => setSchoolSearch(e.target.value)}
+          placeholder="Search schools…"
+          className="w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-200"
+        />
+      </div>
 
-            {/* Filtered list + select */}
-            <div className="space-y-2">
-              <label className="text-sm">Choose a school</label>
-              <select
-                className="w-full border rounded-xl px-3 py-2"
-                size={6}
-                value={selectedBankKey ?? ""}
-                onChange={(e) => setSelectedBankKey(e.target.value)}
-              >
-                {DENTAL_SCHOOLS
-                  .filter(s => {
-                    const q = schoolSearch.trim().toLowerCase();
-                    if (!q) return true;
-                    return (
-                      s.name.toLowerCase().includes(q) ||
-                      (s.city || "").toLowerCase().includes(q) ||
-                      (s.state || "").toLowerCase().includes(q)
-                    );
-                  })
-                  .map(s => (
-                    <option key={s.key} value={s.key}>
-                      {s.name} — {s.city}, {s.state}
-                    </option>
-                  ))}
-              </select>
-            </div>
+      {/* List */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-medium">Choose school(s)</label>
+          <div className="text-xs text-slate-500">
+            Selected: <span className="font-semibold">{selectedKeys.size}</span>
+          </div>
+        </div>
 
-           <div className="flex justify-end gap-2">
-            <button
-              className="rounded-xl px-3 py-2 border"
-              onClick={() => setAddPickerOpen(false)}
-            >
-              Cancel
-            </button>
-
-            <button
-              className="rounded-xl px-3 py-2 text-white bg-[linear-gradient(90deg,#34d399,#60a5fa)]"
-              onClick={() => {
-                if (selectedBankKey) addSchoolFromBank(selectedBankKey);
-                // ✅ removed setAddPickerOpen(false)
-                // ✅ modal stays open for multiple adds
-              }}
-            >
-              Add
-            </button>
+        <div className="rounded-2xl border border-slate-200 bg-white/60 max-h-[50vh] overflow-y-auto p-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            {DENTAL_SCHOOLS
+              .filter((s) => {
+                const q = schoolSearch.trim().toLowerCase();
+                if (!q) return true;
+                return (
+                  s.name.toLowerCase().includes(q) ||
+                  (s.city || "").toLowerCase().includes(q) ||
+                  (s.state || "").toLowerCase().includes(q)
+                );
+              })
+              .map((s, i) => {
+                const checked = selectedKeys.has(s.key);
+                return (
+                  <label
+                    key={s.key}
+                    className={`flex items-start gap-3 rounded-2xl border px-3 py-3 cursor-pointer transition
+                      ${checked ? "border-fuchsia-300 bg-fuchsia-50/60" : "border-slate-200 hover:bg-slate-50"}`}
+                  >
+                    <input
+                      type="checkbox"
+                      className="mt-1 h-4 w-4"
+                      checked={checked}
+                      onChange={() => toggleSelected(s.key)}
+                    />
+                    <div className="text-sm">
+                      <div className="font-medium">
+                        {s.name}
+                      </div>
+                      <div className="text-xs text-slate-500">
+                        {s.city}{s.city && s.state ? ", " : ""}{s.state}
+                      </div>
+                    </div>
+                  </label>
+                );
+              })}
           </div>
         </div>
       </div>
-    )}
+
+      {/* Actions */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+        <div className="flex items-center gap-2 text-xs text-slate-600">
+          <button
+            className="px-2 py-1 rounded-xl border hover:bg-slate-50"
+            onClick={() => setSelectedKeys(new Set())}
+          >
+            Clear
+          </button>
+          <button
+            className="px-2 py-1 rounded-xl border hover:bg-slate-50"
+            onClick={() => {
+              // select all visible in current filter
+              const visible = DENTAL_SCHOOLS.filter((s) => {
+                const q = schoolSearch.trim().toLowerCase();
+                if (!q) return true;
+                return (
+                  s.name.toLowerCase().includes(q) ||
+                  (s.city || "").toLowerCase().includes(q) ||
+                  (s.state || "").toLowerCase().includes(q)
+                );
+              }).map((s) => s.key);
+              setSelectedKeys(new Set(visible));
+            }}
+          >
+            Select all (filtered)
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            className="rounded-2xl px-4 py-2 border"
+            onClick={() => setAddPickerOpen(false)}
+          >
+            Cancel
+          </button>
+          {/* Add & stay */}
+          <button
+            disabled={selectedKeys.size === 0}
+            className="rounded-2xl px-4 py-2 text-white bg-[linear-gradient(90deg,#34d399,#60a5fa)] disabled:opacity-50"
+            onClick={() => addSelectedSchools(false)}
+            title="Add selected and keep picking"
+          >
+            Add {selectedKeys.size > 0 ? `(${selectedKeys.size})` : ""}
+          </button>
+          {/* Add & close */}
+          <button
+            disabled={selectedKeys.size === 0}
+            className="rounded-2xl px-4 py-2 text-white bg-[linear-gradient(90deg,#f97316,#ec4899,#6366f1)] disabled:opacity-50"
+            onClick={() => addSelectedSchools(true)}
+            title="Add selected and close"
+          >
+            Add & Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
 
       
       {/* main grid */}
