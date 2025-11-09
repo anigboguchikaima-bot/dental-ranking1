@@ -980,7 +980,7 @@ if (!session && !guestMode) {
 
      {addPickerOpen && (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-    <div className="bg-white rounded-3xl w-full max-w-2xl p-6 md:p-7 shadow-2xl space-y-5">
+    <div className="bg-white rounded-3xl w-[88%] max-w-[590px] p-5 md:p-6 shadow-2xl space-y-5 max-h-[86vh] overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-xl md:text-2xl font-extrabold tracking-tight">
