@@ -22,6 +22,164 @@ import { supabase } from "./supabaseClient"; // ← must be up here
 
 /* -------------------- CONSTANTS / HELPERS (OUTSIDE COMPONENT) -------------------- */
 
+/* -------------------- SCHOOL BANK -------------------- */
+const DENTAL_SCHOOLS = [
+  // Alabama
+  { key: "uab", name: "University of Alabama School of Dentistry", city: "Birmingham", state: "AL" },
+
+  // Arizona
+  { key: "atsu-az", name: "Arizona School of Dentistry & Oral Health (ATSU)", city: "Mesa", state: "AZ" },
+  { key: "midwestern-az", name: "Midwestern University College of Dental Medicine–Arizona", city: "Glendale", state: "AZ" },
+
+  // Arkansas
+  { key: "lyon", name: "Lyon College School of Dental Medicine", city: "Batesville", state: "AR", note: "opening July 2025" },
+
+  // California
+  { key: "cnsu", name: "California Northstate University College of Dental Medicine", city: "Elk Grove", state: "CA" },
+  { key: "usc", name: "Herman Ostrow School of Dentistry of USC", city: "Los Angeles", state: "CA" },
+  { key: "loma-linda", name: "Loma Linda University School of Dentistry", city: "Loma Linda", state: "CA" },
+  { key: "ucla", name: "University of California, Los Angeles School of Dentistry", city: "Los Angeles", state: "CA" },
+  { key: "ucsf", name: "University of California, San Francisco School of Dentistry", city: "San Francisco", state: "CA" },
+  { key: "pacific-dugoni", name: "University of the Pacific Arthur A. Dugoni School of Dentistry", city: "San Francisco", state: "CA" },
+  { key: "westernu", name: "Western University of Health Sciences College of Dental Medicine", city: "Pomona", state: "CA" },
+
+  // Colorado
+  { key: "cu", name: "University of Colorado School of Dental Medicine", city: "Aurora", state: "CO" },
+
+  // Connecticut
+  { key: "uconn", name: "University of Connecticut School of Dental Medicine", city: "Farmington", state: "CT" },
+
+  // District of Columbia
+  { key: "howard", name: "Howard University College of Dentistry", city: "Washington", state: "DC" },
+
+  // Florida
+  { key: "lecom", name: "LECOM School of Dental Medicine", city: "Bradenton", state: "FL" },
+  { key: "nova", name: "Nova Southeastern University College of Dental Medicine", city: "Ft. Lauderdale", state: "FL" },
+  { key: "uf", name: "University of Florida College of Dentistry", city: "Gainesville", state: "FL" },
+
+  // Georgia
+  { key: "augusta", name: "The Dental College of Georgia at Augusta University", city: "Augusta", state: "GA" },
+
+  // Illinois
+  { key: "uic", name: "University of Illinois Chicago College of Dentistry", city: "Chicago", state: "IL" },
+  { key: "midwestern-il", name: "Midwestern University College of Dental Medicine–Illinois", city: "Downers Grove", state: "IL" },
+  { key: "siu", name: "Southern Illinois University School of Dental Medicine", city: "Alton", state: "IL" },
+
+  // Indiana
+  { key: "iu", name: "Indiana University School of Dentistry", city: "Indianapolis", state: "IN" },
+
+  // Iowa
+  { key: "uiowa", name: "The University of Iowa College of Dentistry and Dental Clinics", city: "Iowa City", state: "IA" },
+
+  // Kentucky
+  { key: "uky", name: "University of Kentucky College of Dentistry", city: "Lexington", state: "KY" },
+  { key: "ul", name: "University of Louisville School of Dentistry", city: "Louisville", state: "KY" },
+
+  // Louisiana
+  { key: "lsu", name: "Louisiana State University Health Sciences Center School of Dentistry", city: "New Orleans", state: "LA" },
+
+  // Maine
+  { key: "une", name: "University of New England College of Dental Medicine", city: "Portland", state: "ME" },
+
+  // Maryland
+  { key: "umaryland", name: "University of Maryland School of Dentistry", city: "Baltimore", state: "MD" },
+
+  // Massachusetts
+  { key: "bu", name: "Boston University Henry M. Goldman School of Dental Medicine", city: "Boston", state: "MA" },
+  { key: "harvard", name: "Harvard School of Dental Medicine", city: "Boston", state: "MA" },
+  { key: "tufts", name: "Tufts University School of Dental Medicine", city: "Boston", state: "MA" },
+
+  // Michigan
+  { key: "udm", name: "University of Detroit Mercy School of Dentistry", city: "Detroit", state: "MI" },
+  { key: "umich", name: "University of Michigan School of Dentistry", city: "Ann Arbor", state: "MI" },
+
+  // Minnesota
+  { key: "umn", name: "University of Minnesota School of Dentistry", city: "Minneapolis", state: "MN" },
+
+  // Mississippi
+  { key: "umc", name: "University of Mississippi Medical Center School of Dentistry", city: "Jackson", state: "MS" },
+
+  // Missouri
+  { key: "kcu", name: "Kansas City University College of Dental Medicine", city: "Joplin", state: "MO" },
+  { key: "atsu-mo", name: "Missouri School of Dentistry & Oral Health (ATSU)", city: "Kirksville", state: "MO" },
+  { key: "umkc", name: "University of Missouri–Kansas City School of Dentistry", city: "Kansas City", state: "MO" },
+
+  // Nebraska
+  { key: "creighton", name: "Creighton University School of Dentistry", city: "Omaha", state: "NE" },
+  { key: "unmc", name: "University of Nebraska Medical Center College of Dentistry", city: "Lincoln", state: "NE" },
+
+  // Nevada
+  { key: "unlv", name: "University of Nevada, Las Vegas School of Dental Medicine", city: "Las Vegas", state: "NV" },
+
+  // New Jersey
+  { key: "rutgers", name: "Rutgers School of Dental Medicine", city: "Newark", state: "NJ" },
+
+  // New York
+  { key: "columbia", name: "Columbia University College of Dental Medicine", city: "New York", state: "NY" },
+  { key: "nyu", name: "New York University College of Dentistry", city: "New York", state: "NY" },
+  { key: "stony-brook", name: "Stony Brook University School of Dental Medicine", city: "Stony Brook", state: "NY" },
+  { key: "touro", name: "Touro College of Dental Medicine at New York Medical College", city: "Hawthorne", state: "NY" },
+  { key: "buffalo", name: "University at Buffalo School of Dental Medicine", city: "Buffalo", state: "NY" },
+
+  // North Carolina
+  { key: "ecu", name: "East Carolina University School of Dental Medicine", city: "Greenville", state: "NC" },
+  { key: "hpu", name: "High Point University School of Dental Medicine and Oral Health", city: "High Point", state: "NC" },
+  { key: "unc", name: "University of North Carolina Chapel Hill School of Dentistry", city: "Chapel Hill", state: "NC" },
+
+  // Ohio
+  { key: "cwr", name: "Case Western Reserve University School of Dental Medicine", city: "Cleveland", state: "OH" },
+  { key: "neomed", name: "Northeast Ohio Medical University Bitonte School of Dentistry", city: "Rootstown", state: "OH", note: "opening July 2025" },
+  { key: "osu", name: "Ohio State University College of Dentistry", city: "Columbus", state: "OH" },
+
+  // Oklahoma
+  { key: "ou", name: "University of Oklahoma College of Dentistry", city: "Oklahoma City", state: "OK" },
+
+  // Oregon
+  { key: "ohsu", name: "Oregon Health & Science University School of Dentistry", city: "Portland", state: "OR" },
+
+  // Pennsylvania
+  { key: "penn", name: "University of Pennsylvania School of Dental Medicine", city: "Philadelphia", state: "PA" },
+  { key: "pitt", name: "University of Pittsburgh School of Dental Medicine", city: "Pittsburgh", state: "PA" },
+  { key: "temple", name: "Temple University Kornberg School of Dentistry", city: "Philadelphia", state: "PA" },
+
+  // Puerto Rico
+  { key: "upr", name: "University of Puerto Rico School of Dental Medicine", city: "San Juan", state: "PR" },
+  { key: "uagm", name: "Universidad Ana G. Méndez School of Dental Medicine", city: "Gurabo", state: "PR" },
+  { key: "ponce", name: "Ponce Health Sciences University School of Dental Medicine", city: "Ponce", state: "PR" },
+
+  // South Carolina
+  { key: "musc", name: "Medical University of South Carolina College of Dental Medicine", city: "Charleston", state: "SC" },
+
+  // Tennessee
+  { key: "lmu", name: "Lincoln Memorial University–College of Dental Medicine", city: "Knoxville", state: "TN" }, // add city if you want to fix
+  { key: "meharry", name: "Meharry Medical College School of Dentistry", city: "Nashville", state: "TN" },
+  { key: "uthsc", name: "University of Tennessee Health Science Center College of Dentistry", city: "Memphis", state: "TN" },
+
+  // Texas
+  { key: "tamudallas", name: "Texas A&M University College of Dentistry", city: "Dallas", state: "TX" },
+  { key: "ttuhsc-elpaso", name: "Texas Tech University Health Sciences Center El Paso — Hunt School of Dentistry", city: "El Paso", state: "TX" },
+  { key: "uth-houston", name: "University of Texas Health Science Center at Houston School of Dentistry", city: "Houston", state: "TX" },
+  { key: "utsa", name: "University of Texas Health Science Center at San Antonio School of Dentistry", city: "San Antonio", state: "TX" },
+
+  // Utah
+  { key: "roseman", name: "Roseman University of Health Sciences College of Dental Medicine", city: "South Jordan", state: "UT" },
+  { key: "utah", name: "University of Utah School of Dentistry", city: "Salt Lake City", state: "UT" },
+
+  // Virginia
+  { key: "vcu", name: "Virginia Commonwealth University School of Dentistry", city: "Richmond", state: "VA" },
+
+  // Washington
+  { key: "pnwu", name: "Pacific Northwest University School of Dental Medicine", city: "Yakima", state: "WA", note: "opening July 2025" },
+  { key: "uw", name: "University of Washington School of Dentistry", city: "Seattle", state: "WA" },
+
+  // West Virginia
+  { key: "wvu", name: "West Virginia University School of Dentistry", city: "Morgantown", state: "WV" },
+
+  // Wisconsin
+  { key: "marquette", name: "Marquette University School of Dentistry", city: "Milwaukee", state: "WI" },
+];
+
+
 // pastel fallback
 const pastelColors = [
   "#FDE68A",
@@ -170,7 +328,6 @@ function AlignMyNextLanding({ onGuest, onSignIn }) {
   const [error, setError] = React.useState("");
   const [showHelp, setShowHelp] = React.useState(false);
   const [forgotOpen, setForgotOpen] = React.useState(false); // ADD
-
 
 
   async function handleSignIn(e) {
@@ -387,6 +544,11 @@ export default function DentalRankingApp() {
   const [addError, setAddError] = useState("");
   const [raterOpen, setRaterOpen] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
+  // NEW — dropdown picker for Add School
+  const [addPickerOpen, setAddPickerOpen] = useState(false);
+  const [schoolSearch, setSchoolSearch] = useState("");
+  const [selectedBankKey, setSelectedBankKey] = useState(DENTAL_SCHOOLS[0]?.key ?? null);
+
 
   // cloud
   const [user, setUser] = useState(null);
@@ -576,6 +738,34 @@ export default function DentalRankingApp() {
       { id: makeId(), name: "New School", city: "", state: "", deadline: "" },
     ]);
   }
+
+  
+  function addSchoolFromBank(key) {
+    const template = DENTAL_SCHOOLS.find(s => s.key === key);
+    if (!template) return;
+
+    // avoid duplicates by name
+    const nameExists = schools.some(
+      s => s.name.trim().toLowerCase() === template.name.trim().toLowerCase()
+    );
+    const id = makeId();
+
+    setSchools(prev => [
+      ...prev,
+      {
+        id,
+        name: nameExists
+          ? `${template.name} (${prev.filter(p => p.name.startsWith(template.name)).length + 1})`
+          : template.name,
+        city: template.city || "",
+        state: template.state || "",
+        deadline: template.deadline || "",
+        // criteria fields stay empty so user fills them later
+      },
+    ]);
+  }
+
+  
   function removeSchool(sid) {
     setSchools((prev) => prev.filter((s) => s.id !== sid));
   }
@@ -709,14 +899,16 @@ if (!session && !guestMode) {
             />
           </label>
 
+
           <button
-            onClick={addSchool}
+            onClick={() => setAddPickerOpen(true)}
             className="rounded-2xl px-3 py-2 text-white bg-[linear-gradient(90deg,#ff80b5,#9089fc)] hover:opacity-90 flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
             Add School
           </button>
 
+        
           <button
             onClick={deleteSelected}
             disabled={selectedIds.size === 0}
@@ -769,6 +961,79 @@ if (!session && !guestMode) {
         </div>
       )}
 
+      {addPickerOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+          <div className="bg-white rounded-3xl w-full max-w-lg p-5 shadow-xl space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold">Add School from Bank</h3>
+              <button
+                className="text-sm px-2 py-1 rounded-xl hover:bg-slate-100"
+                onClick={() => setAddPickerOpen(false)}
+               >
+                Close
+              </button>
+             </div>
+
+            {/* Search box */}
+            <input
+              type="text"
+              value={schoolSearch}
+              onChange={(e) => setSchoolSearch(e.target.value)}
+              placeholder="Search schools…"
+              className="w-full border rounded-xl px-3 py-2"
+            />
+
+            {/* Filtered list + select */}
+            <div className="space-y-2">
+              <label className="text-sm">Choose a school</label>
+              <select
+                className="w-full border rounded-xl px-3 py-2"
+                size={6}
+                value={selectedBankKey ?? ""}
+                onChange={(e) => setSelectedBankKey(e.target.value)}
+              >
+                {DENTAL_SCHOOLS
+                  .filter(s => {
+                    const q = schoolSearch.trim().toLowerCase();
+                    if (!q) return true;
+                    return (
+                      s.name.toLowerCase().includes(q) ||
+                      (s.city || "").toLowerCase().includes(q) ||
+                      (s.state || "").toLowerCase().includes(q)
+                    );
+                  })
+                  .map(s => (
+                    <option key={s.key} value={s.key}>
+                      {s.name} — {s.city}, {s.state}
+                    </option>
+                  ))}
+              </select>
+            </div>
+
+           <div className="flex justify-end gap-2">
+            <button
+              className="rounded-xl px-3 py-2 border"
+              onClick={() => setAddPickerOpen(false)}
+            >
+              Cancel
+            </button>
+
+            <button
+              className="rounded-xl px-3 py-2 text-white bg-[linear-gradient(90deg,#34d399,#60a5fa)]"
+              onClick={() => {
+                if (selectedBankKey) addSchoolFromBank(selectedBankKey);
+                // ✅ removed setAddPickerOpen(false)
+                // ✅ modal stays open for multiple adds
+              }}
+            >
+              Add
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
+      
       {/* main grid */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* weights panel */}
